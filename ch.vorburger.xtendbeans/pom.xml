@@ -1,0 +1,253 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>ch.vorburger</groupId>
+  <artifactId>xtendbeans</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <properties>
+    <xtend.version>2.9.2</xtend.version>
+  </properties>
+
+  <name>Xtend Bean Generator by vorburger.ch</name>
+  <description>Code Generator for Xtend Bean syntax from any Java Object</description>
+  <url>https://github.com/vorburger/xtendbeans</url>
+  <inceptionYear>2016</inceptionYear>
+  <licenses>
+    <license>
+      <name>Eclipse Public License v1.0</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>https://github.com/vorburger/xtendbeans.git</connection>
+    <developerConnection>scm:git:git@github.com:vorburger/xtendbeans.git</developerConnection>
+    <url>https://github.com/vorburger/xtendbeans</url>
+    <tag>HEAD</tag>
+  </scm>
+  <organization>
+    <name>Michael Vorburger</name>
+    <url>http://www.vorburger.ch</url>
+  </organization>
+  <developers>
+    <developer>
+      <id>vorburger</id>
+      <name>Michael Vorburger</name>
+      <email>mike@vorburger.ch</email>
+      <url>http://www.vorburger.ch</url>
+    </developer>
+  </developers>
+  <contributors>
+    <contributor>
+      <name>Please consult the CONTRIBUTORS file which should be included with this JAR</name>
+    </contributor>
+  </contributors>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.10.19</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.xtend</groupId>
+      <artifactId>org.eclipse.xtend.lib</artifactId>
+      <version>${xtend.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.eclipse.xtend</groupId>
+        <artifactId>xtend-maven-plugin</artifactId>
+        <version>${xtend.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/generated-sources/xtend/main</outputDirectory>
+              <testOutputDirectory>${project.build.directory}/generated-sources/xtend/test</testOutputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.7</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.3</version>
+        <configuration>
+          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>release</releaseProfiles>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+                  <!--https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven
+                      http://jira.codehaus.org/browse/MGPG-9 & http://jira.codehaus.org/browse/MRELEASE-263 -->
+          <mavenExecutorId>forked-path</mavenExecutorId>
+                  <!-- Following is required because artifactId is (now) mariaDB4j-pom, but we want mariaDB4j -->
+          <tagNameFormat>mariaDB4j-@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.0.1</version>
+        <configuration>
+          <excludeResources>true</excludeResources>
+          <includePom>true</includePom>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.4</version>
+        <configuration>
+          <quiet>true</quiet>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.alexecollins.maven.plugin</groupId>
+        <artifactId>script-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <script>
+                 // BeanShell is 2005-ish and thus doesn't support generics, varargs, try-with-resources or lambdas, so:
+                 // (If we do this kind of inline code in pom.xml more often, we shold have a new simple module in
+                 //  odl-parent, which has *.java that we compile, and then just depend on it here and call one-line
+                 //  static class methods only - it will be MUCH easier to write!)
+                 void copy(File root, String glob, File target) {
+                     java.nio.file.DirectoryStream dirStream = java.nio.file.Files.newDirectoryStream(root.toPath(), glob);
+                     Iterator dirStreamIterator = dirStream.iterator();
+                     while (dirStreamIterator.hasNext()) {
+                         java.nio.file.Path path = dirStreamIterator.next();
+                         java.nio.file.Files.copy(path, new File(target, path.toFile().getName()).toPath(),
+                             new java.nio.file.CopyOption[] {
+                                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                                 java.nio.file.StandardCopyOption.COPY_ATTRIBUTES
+                             }
+                         );
+                     }
+                     dirStream.close();
+                 }
+
+                 File gitRepoRootDir = project.basedir;
+                 while (!new File(gitRepoRootDir, ".git").exists() &amp;&amp; gitRepoRootDir.getParentFile() != null) {
+                     gitRepoRootDir = gitRepoRootDir.getParentFile();
+                 }
+
+                 File target = new File(project.build.outputDirectory);
+                 target.mkdirs();
+                 copy(gitRepoRootDir, "README*", target);
+                 copy(gitRepoRootDir, "CONTRIBUTING*", target);
+                 copy(gitRepoRootDir, "CHANGES*", target);
+                 copy(gitRepoRootDir, "LEGAL*", target);
+                 copy(gitRepoRootDir, "CONTRIBUTORS*", target);
+                 copy(gitRepoRootDir, "LICENSE*", target);
+                 copy(gitRepoRootDir, "NOTICE*", target);
+              </script>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache-extras.beanshell</groupId>
+            <artifactId>bsh</artifactId>
+            <version>2.0b6</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>gpg</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <distributionManagement>
+    <!-- http://central.sonatype.org/pages/apache-maven.html -->
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+</project>
