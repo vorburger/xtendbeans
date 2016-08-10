@@ -21,17 +21,24 @@ import org.junit.ComparisonFailure;
  * they are referenced through static import:<br>
  *
  * <pre>
- * import static org.opendaylight.netvirt.aclservice.tests.utils.AssertBeans.assertEqualBeans;
+ * import static ch.vorburger.xtendbeans.AssertBeans.assertEqualBeans;
  *    ...
- *    assertEqualBeans(...);
+ *    assertEqualBeans(expected, actual);
  * </pre>
+ *
+ * The expected object would typically have been defined in a *.xtend source
+ * file, and the actual object would typically be an instance of something
+ * created by a test. The comparison of expected VS actual will be based on
+ * Object.equals, but any mismatch will be shown in a very readable textual
+ * format. This format is suitable for copy/paste into an for the expected
+ * object.
  *
  * <p>
  * Note that your IDE can support you to create the static import. For example
  * in Eclipse, type: AssertBeans &lt;Ctrl-Space&gt; (will import AssertBeans,
  * non static) . &lt;Ctrl-Space&gt; (will auto-complete assertEqualBeans). Now
- * cursor back to highlight "assertEqualBeans" and Ctrl-Shift-M on it will turn it into
- * a static import.
+ * cursor back to highlight "assertEqualBeans" and Ctrl-Shift-M on it will turn
+ * it into a static import.
  *
  * @author Michael Vorburger
  */
@@ -39,8 +46,8 @@ public final class AssertBeans {
 
     /**
      * Asserts that two JavaBean objects are equal. If they are not, an
-     * {@link AssertionError} thrown. The message is If <code>expected</code>
-     * and <code>actual</code> are <code>null</code>, they are considered equal.
+     * {@link AssertionError} thrown. If <code>expected</code> and
+     * <code>actual</code> are <code>null</code>, they are considered equal.
      *
      * @param expected
      *            expected value

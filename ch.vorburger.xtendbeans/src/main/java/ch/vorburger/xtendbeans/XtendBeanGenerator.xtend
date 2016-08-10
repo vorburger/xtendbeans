@@ -24,7 +24,7 @@ import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 
 /**
- * Magic. pure. Magic.
+ * Xtend new (Java Bean) object code generates.
  *
  * Generates highly readable Java Bean object initialization code
  * based on the <a href="https://eclipse.org/xtend/documentation/203_xtend_expressions.html#with-operator">
@@ -39,7 +39,7 @@ import org.objenesis.instantiator.ObjectInstantiator
  *
  * <p>PS: This implementation is currently written with performance characteristics intended for
  * manually dumping objects when writing tests.  In particular, no Java Reflection results are
- * cached so far. It is thus not suitable for serializing objects in production, yet.
+ * cached so far. It is thus not suitable for serializing objects in production.
  *
  * @author Michael Vorburger
  */
