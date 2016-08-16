@@ -22,6 +22,7 @@ import org.mockito.cglib.core.ReflectUtils
 import org.objenesis.Objenesis
 import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
+import java.util.Objects
 
 /**
  * Xtend new (Java Bean) object code generates.
@@ -59,6 +60,10 @@ class XtendBeanGenerator {
 
     def protected CharSequence getNewBeanExpression(Object bean) {
         val builderClass = getBuilderClass(bean)
+        getNewBeanExpression(bean, builderClass)
+    }
+
+    def protected CharSequence getNewBeanExpression(Object bean, Class<?> builderClass) {
         val isUsingBuilder = !builderClass.equals(bean.class)
         val properties = getBeanProperties(bean, builderClass)
         val constructorArguments = constructorArguments(bean, builderClass, properties) // This removes some properties
@@ -72,21 +77,24 @@ class XtendBeanGenerator {
         «IF !filteredRemainingProperties.empty»]«ENDIF»«IF isUsingBuilder»).build()«ENDIF»'''
     }
 
-    def isList(Property property) {
+    def protected isList(Property property) {
         property.type.isAssignableFrom(List) // NOT || property.type.isArray
     }
 
     def protected Class<?> getBuilderClass(Object bean) {
         if (bean.class.enclosingClass?.simpleName?.endsWith("Builder"))
             bean.class.enclosingClass
-        else {
-            val classLoader = bean.class.classLoader
-            val buildClassName = bean.class.name + "Builder"
-            try {
-                Class.forName(buildClassName, false, classLoader)
-            } catch (ClassNotFoundException e) {
-                bean.class
-            }
+        else
+            getBuilderClassByAppendingBuilderToClassName(bean.class)
+    }
+
+    def protected Class<?> getBuilderClassByAppendingBuilderToClassName(Class klass) {
+        val classLoader = klass.classLoader
+        val buildClassName = klass.name + "Builder"
+        try {
+            Class.forName(buildClassName, false, classLoader)
+        } catch (ClassNotFoundException e) {
+            klass
         }
     }
 
@@ -149,7 +157,7 @@ class XtendBeanGenerator {
         return stringify(value.valueFunction.apply)
     }
 
-    def getParameterName(Parameter parameter) {
+    def protected getParameterName(Parameter parameter) {
         if (!parameter.isNamePresent)
             // https://docs.oracle.com/javase/tutorial/reflect/member/methodparameterreflection.html
             throw new IllegalStateException(
@@ -257,7 +265,7 @@ class XtendBeanGenerator {
                     propertyDescriptor.writeMethod != null,
                     propertyDescriptor.propertyType,
                     [ | xtendReflectExtensions.invoke(bean, propertyDescriptor.readMethod.name)],
-                    if (defaultValuesBean != null)
+                    if (!Objects.equals(null, defaultValuesBean))
                         try {
                             xtendReflectExtensions.invoke(defaultValuesBean, propertyDescriptor.readMethod.name)
                         } catch (Throwable t) {
@@ -270,11 +278,11 @@ class XtendBeanGenerator {
         return propertiesMap
     }
 
-    def boolean isPropertyConsidered(PropertyDescriptor propertyDescriptor) {
+    def protected boolean isPropertyConsidered(PropertyDescriptor propertyDescriptor) {
         true
     }
 
-    def newEmptyBeanForDefaultValues(Class<?> builderClass) {
+    def protected newEmptyBeanForDefaultValues(Class<?> builderClass) {
         try {
             builderClass.newInstance
         } catch (InstantiationException e) {
