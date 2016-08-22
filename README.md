@@ -38,3 +38,10 @@ Your test is green now.  Any future changes causing discrepancies between actual
 The JUnit *Test class with your @Test methods does not have to written in Xtend but can (stay) in Java.   The Xtend method, e.g. test1() in class MyExpectedObjects, can also take parameters to "template" expected objects, if you have many tests.  The *.xtend syntax is "code" just like Java, and will compile-time check, offer Ctrl-Space completion of property names, or turn red during development, not test execution, should e.g. property or class names of beans change etc.
 
 In a sense this library is a "serialization" helper not unlike frameworks like GSON, Jackson, JAXB & Co.  Instead of producing some sort of mark-up like XML, JSON (or [ESON](https://wiki.eclipse.org/ESON)!), it creates Xtend source code.  However, unlike those kind of frameworks, this library does not include any "de-serialization" (AKA unmarshalling) part to re-construct objects - because the Xtend source (transpiled into Java, compiled to standard JVM bytecode) will already create the original object - there is thus no need to dynamically at run-time "read" anything.
+
+_Reminder how to release new versions:_
+
+    mvn release:prepare
+    mvn -Pgpg release:perform
+    mvn release:clean
+    
