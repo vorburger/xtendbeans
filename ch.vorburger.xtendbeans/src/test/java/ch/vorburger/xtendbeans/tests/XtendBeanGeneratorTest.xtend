@@ -16,6 +16,9 @@ import org.junit.Test
 
 import static org.junit.Assert.assertEquals
 import static extension ch.vorburger.xtendbeans.tests.BuilderExtensions.operator_doubleGreaterThan
+import ch.vorburger.xtendbeans.AssertBeans
+import org.junit.ComparisonFailure
+import org.junit.Assert
 
 /**
  * Unit test / demo for XtendBeanGenerator.
@@ -73,6 +76,50 @@ class XtendBeanGeneratorTest {
                 ]
                 name = "hello, world"
             ]'''.toString, g.getExpression(bean))
+    }
+
+    @Test def void complexBeanUseAssertBeansInsteadOfAssertEquals() {
+        val bean = new Bean => [
+            aLongObject = 123L
+            aShort = 123 as short
+            anInt = 123
+            anInteger = 123
+            bigInteger = 456bi
+            innerBean = new Bean => [
+                name = "1beanz"
+            ]
+            name = "hello, world"
+            beanz = #[
+                new Bean => [
+                    name = "beanz1"
+                ]
+            ]
+        ]
+        AssertBeans.assertEqualBeans(bean, bean);
+
+        val bean2 = new Bean => [
+            aLongObject = 456L
+            aShort = 123 as short
+            anInt = 123
+            anInteger = 123
+            bigInteger = 456bi
+            innerBean = new Bean => [
+                name = "1beanz"
+            ]
+            name = "hello, world"
+            beanz = #[
+                new Bean => [
+                    name = "beanz1"
+                ]
+            ]
+        ]
+        try {
+            AssertBeans.assertEqualBeans(bean, bean2);
+        } catch (ComparisonFailure comparisonFailure) {
+            Assert.assertTrue(comparisonFailure.actual,
+                comparisonFailure.actual.startsWith("new Bean => [\n    ALongObject = 456L")
+            );
+        }
     }
 
     @Test def void beanWithArrayProperty() {

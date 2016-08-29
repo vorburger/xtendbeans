@@ -56,7 +56,7 @@ public final class AssertBeans {
         // and obviously neither e.g. java.util.Objects.equals(Object, Object) based on. it
         final String expectedAsText = new XtendBeanGenerator().getExpression(expected);
         final String actualAsText = new XtendBeanGenerator().getExpression(actual);
-        if (expectedAsText.equals(actualAsText)) {
+        if (!expectedAsText.equals(actualAsText)) {
             throw new ComparisonFailure("Expected and actual beans do not match", expectedAsText, actualAsText);
         }
     }
