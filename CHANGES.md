@@ -6,7 +6,8 @@ v1.1.0 @ TBD
 ---
 
 * AssertBeans without Object.equals()
-* Builder class to use can be customized (useful if it cannot be auto-detected)
+* Class to use after "new" can be customized (useful if it cannot be auto-detected)
+* Builder Class with extension operation for shorter syntax can be used through customization (XtendBeanGeneratorTest#beanWithBuilderAndExtensionMethod())
 * Documentation in README
 
 

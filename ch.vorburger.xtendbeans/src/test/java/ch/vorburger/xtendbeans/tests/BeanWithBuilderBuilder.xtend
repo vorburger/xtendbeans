@@ -11,7 +11,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
 @Accessors
-class BeanWithBuilderBuilder {
+class BeanWithBuilderBuilder implements Builder<BeanWithBuilder> {
 
     // This class is in a separate file instead of within XtendBeanGeneratorTest
     // so that the private fields are not visible to the test, thus simulating
@@ -20,7 +20,7 @@ class BeanWithBuilderBuilder {
 
     String name
 
-    def BeanWithBuilder build() {
+    override BeanWithBuilder build() {
         new BeanWithBuilderImpl(name)
     }
 

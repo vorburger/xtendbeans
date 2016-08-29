@@ -15,6 +15,7 @@ import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.junit.Test
 
 import static org.junit.Assert.assertEquals
+import static extension ch.vorburger.xtendbeans.tests.BuilderExtensions.operator_doubleGreaterThan
 
 /**
  * Unit test / demo for XtendBeanGenerator.
@@ -94,6 +95,39 @@ class XtendBeanGeneratorTest {
             (new BeanWithBuilderBuilder => [
                 name = "hoho"
             ]).build()'''.toString, g.getExpression(bean))
+    }
+
+    @Test def void beanWithBuilderAndExtensionMethod() {
+        val BeanWithBuilder bean = new BeanWithBuilderBuilder >> [
+            name = "hoho"
+        ]
+        val superGenerator = new XtendBeanGenerator() {
+
+            def private useBuilderExtensions(Class<?> builderClass) {
+                Builder.isAssignableFrom(builderClass)
+            }
+
+            override protected isUsingBuilder(Object bean, Class<?> builderClass) {
+                if (useBuilderExtensions(builderClass)) {
+                    false
+                } else {
+                    super.isUsingBuilder(bean, builderClass)
+                }
+            }
+
+            override protected getOperator(Object bean, Class<?> builderClass) {
+                if (useBuilderExtensions(builderClass)) {
+                    ">>"
+                } else {
+                    super.getOperator(bean, builderClass)
+                }
+            }
+
+        }
+        assertEquals('''
+            new BeanWithBuilderBuilder >> [
+                name = "hoho"
+            ]'''.toString, superGenerator.getExpression(bean))
     }
 
     @Test def void emptyBeanWithBuilder() {

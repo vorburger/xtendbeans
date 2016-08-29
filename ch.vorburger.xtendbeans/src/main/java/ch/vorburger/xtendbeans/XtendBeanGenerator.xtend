@@ -64,17 +64,25 @@ class XtendBeanGenerator {
     }
 
     def protected CharSequence getNewBeanExpression(Object bean, Class<?> builderClass) {
-        val isUsingBuilder = !builderClass.equals(bean.class)
+        val isUsingBuilder = isUsingBuilder(bean, builderClass)
         val properties = getBeanProperties(bean, builderClass)
         val constructorArguments = constructorArguments(bean, builderClass, properties) // This removes some properties
         val filteredRemainingProperties = properties.filter[name, property |
             ((property.isWriteable || property.isList) && !property.hasDefaultValue)].values
         '''
-        «IF isUsingBuilder»(«ENDIF»new «builderClass.simpleName»«constructorArguments»«IF !filteredRemainingProperties.empty» => [«ENDIF»
+        «IF isUsingBuilder»(«ENDIF»new «builderClass.simpleName»«constructorArguments»«IF !filteredRemainingProperties.empty» «getOperator(bean, builderClass)» [«ENDIF»
             «FOR property : filteredRemainingProperties»
             «property.name» «IF property.isList && !property.isWriteable»+=«ELSE»=«ENDIF» «stringify(property.valueFunction.apply)»
             «ENDFOR»
         «IF !filteredRemainingProperties.empty»]«ENDIF»«IF isUsingBuilder»).build()«ENDIF»'''
+    }
+
+    def protected isUsingBuilder(Object bean, Class<?> builderClass) {
+        !builderClass.equals(bean.class)
+    }
+
+    def protected getOperator(Object bean, Class<?> builderClass) {
+        "=>"
     }
 
     def protected isList(Property property) {
