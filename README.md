@@ -33,6 +33,8 @@ You can now use this new class in the @Test by replacing the initial TODO to use
 
 The test is green now.  Any future changes causing discrepancies between actual and expected objects will lead to highly readable and understandable text based diff, in the same syntax.  If the change is justified and not a regression, it is very easy to adapt e.g. the MyExpectedObjects Xtend source accordingly.
 
+You can use this library completely without Xtend as well, and just compare a String-based expected text and the representation generated from an actual object; the AssertBeans' assertEqualByText() method is for that.
+
 
 _Further background information:_
 

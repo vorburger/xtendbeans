@@ -42,6 +42,8 @@ import org.junit.ComparisonFailure;
  */
 public final class AssertBeans {
 
+    private final static XtendBeanGenerator generator = new XtendBeanGenerator();
+
     /**
      * Asserts that two JavaBean or immutable Value Objects are equal. If they are not, throws an
      * {@link ComparisonFailure} with highly readable textual representations of the objects' properties.
@@ -54,10 +56,14 @@ public final class AssertBeans {
     public static void assertEqualBeans(Object expected, Object actual) throws ComparisonFailure {
         // Do *NOT* rely on expected/actual java.lang.Object.equals(Object);
         // and obviously neither e.g. java.util.Objects.equals(Object, Object) based on. it
-        final String expectedAsText = new XtendBeanGenerator().getExpression(expected);
-        final String actualAsText = new XtendBeanGenerator().getExpression(actual);
-        if (!expectedAsText.equals(actualAsText)) {
-            throw new ComparisonFailure("Expected and actual beans do not match", expectedAsText, actualAsText);
+        final String expectedAsText = generator.getExpression(expected);
+        assertEqualByText(expectedAsText, actual);
+    }
+
+    public static void assertEqualByText(String expectedText, Object actual) throws ComparisonFailure {
+        final String actualText = generator.getExpression(actual);
+        if (!expectedText.equals(actualText)) {
+            throw new ComparisonFailure("Expected and actual beans do not match", expectedText, actualText);
         }
     }
 
