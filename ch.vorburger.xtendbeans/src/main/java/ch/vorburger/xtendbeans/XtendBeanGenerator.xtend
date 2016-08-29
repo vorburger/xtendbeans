@@ -88,7 +88,7 @@ class XtendBeanGenerator {
             getBuilderClassByAppendingBuilderToClassName(bean.class)
     }
 
-    def protected Class<?> getBuilderClassByAppendingBuilderToClassName(Class klass) {
+    def protected Class<?> getBuilderClassByAppendingBuilderToClassName(Class<?> klass) {
         val classLoader = klass.classLoader
         val buildClassName = klass.name + "Builder"
         try {

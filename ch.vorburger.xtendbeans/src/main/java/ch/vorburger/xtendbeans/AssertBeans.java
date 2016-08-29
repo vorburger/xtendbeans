@@ -7,13 +7,12 @@
  */
 package ch.vorburger.xtendbeans;
 
-import java.util.Objects;
 import org.junit.Assert;
 import org.junit.ComparisonFailure;
 
 /**
  * Utility similar to core JUnit's {@link Assert} but with particular support
- * for Java Beans, based on the {@link XtendBeanGenerator}.
+ * for Java Beans & Value Objects, based on the {@link XtendBeanGenerator}.
  *
  * <p>
  * These methods can be used directly:
@@ -28,8 +27,7 @@ import org.junit.ComparisonFailure;
  *
  * The expected object would typically have been defined in a *.xtend source
  * file, and the actual object would typically be an instance of something
- * created by a test. The comparison of expected VS actual will be based on
- * Object.equals, but any mismatch will be shown in a very readable textual
+ * created by a test.  Any mismatch will be shown in a very readable textual
  * format. This format is suitable for copy/paste into an for the expected
  * object.
  *
@@ -45,9 +43,8 @@ import org.junit.ComparisonFailure;
 public final class AssertBeans {
 
     /**
-     * Asserts that two JavaBean objects are equal. If they are not, an
-     * {@link AssertionError} thrown. If <code>expected</code> and
-     * <code>actual</code> are <code>null</code>, they are considered equal.
+     * Asserts that two JavaBean or immutable Value Objects are equal. If they are not, throws an
+     * {@link ComparisonFailure} with highly readable textual representations of the objects' properties.
      *
      * @param expected
      *            expected value
@@ -55,9 +52,12 @@ public final class AssertBeans {
      *            the value to check against <code>expected</code>
      */
     public static void assertEqualBeans(Object expected, Object actual) throws ComparisonFailure {
-        if (!Objects.equals(expected, actual)) {
-            throw new ComparisonFailure("Expected and actual beans do not match",
-                    new XtendBeanGenerator().getExpression(expected), new XtendBeanGenerator().getExpression(actual));
+        // Do *NOT* rely on expected/actual java.lang.Object.equals(Object);
+        // and obviously neither e.g. java.util.Objects.equals(Object, Object) based on. it
+        final String expectedAsText = new XtendBeanGenerator().getExpression(expected);
+        final String actualAsText = new XtendBeanGenerator().getExpression(actual);
+        if (expectedAsText.equals(actualAsText)) {
+            throw new ComparisonFailure("Expected and actual beans do not match", expectedAsText, actualAsText);
         }
     }
 
