@@ -12,7 +12,7 @@ import org.junit.ComparisonFailure;
 
 /**
  * Utility similar to core JUnit's {@link Assert} but with particular support
- * for Java Beans & Value Objects, based on the {@link XtendBeanGenerator}.
+ * for Java Beans &amp; Value Objects, based on the {@link XtendBeanGenerator}.
  *
  * <p>
  * These methods can be used directly:
