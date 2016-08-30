@@ -62,7 +62,7 @@ public final class AssertBeans {
 
     public static void assertEqualByText(String expectedText, Object actual) throws ComparisonFailure {
         final String actualText = generator.getExpression(actual);
-        if (!expectedText.equals(actualText)) {
+        if (!actualText.equals(expectedText)) {
             throw new ComparisonFailure("Expected and actual beans do not match", expectedText, actualText);
         }
     }
