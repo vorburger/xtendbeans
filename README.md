@@ -35,7 +35,7 @@ The test is green now.  Any future changes causing discrepancies between actual 
 
 You can use this library completely without Xtend as well, and just compare a String-based expected text and the representation generated from an actual object; the AssertBeans' assertEqualByText() method is for that.
 
-This library could be extended to produce literal object property initialization code for other languages than Xtend which offer such syntax (Java doesn't really; Groovy/Scale/etc. do).
+This library could be extended to produce literal object property initialization code for other languages than Xtend which offer such syntax (Java doesn't really; Groovy/Scala/Kotlin/Ceylon & Co. do).
 
 
 _Further background information:_
