@@ -7,7 +7,6 @@
  */
 package ch.vorburger.xtendbeans
 
-import java.beans.PropertyDescriptor
 import java.lang.reflect.Constructor
 import java.lang.reflect.Parameter
 import java.math.BigInteger
@@ -261,16 +260,17 @@ class XtendBeanGenerator {
     def protected Map<String, Property> getBeanProperties(Object bean, Class<?> builderClass) {
         // could also implement using:
         //   * org.eclipse.xtext.xbase.lib.util.ReflectExtensions.get(Object, String)
-        //   * com.google.common.truth.ReflectionUtil.getField(Class<?>, String)
         //   * org.codehaus.plexus.util.ReflectionUtils
+        //   * org.springframework.util.ReflectionUtils
+        //   * other reflection libraries
         val defaultValuesBean = newEmptyBeanForDefaultValues(builderClass)
         val propertyDescriptors = ReflectUtils.getBeanProperties(builderClass)
         val propertiesMap = newLinkedHashMap()
         for (propertyDescriptor : propertyDescriptors) {
-            if (isPropertyConsidered(propertyDescriptor))
+            if (isPropertyConsidered(builderClass, propertyDescriptor.name, propertyDescriptor.propertyType))
                 propertiesMap.put(propertyDescriptor.name, new Property(
                     propertyDescriptor.name,
-                    propertyDescriptor.writeMethod != null,
+                    isPropertyWriteable(builderClass, propertyDescriptor.name, propertyDescriptor.propertyType),
                     propertyDescriptor.propertyType,
                     [ | xtendReflectExtensions.invoke(bean, propertyDescriptor.readMethod.name)],
                     if (!Objects.equals(null, defaultValuesBean))
@@ -286,7 +286,18 @@ class XtendBeanGenerator {
         return propertiesMap
     }
 
-    def protected boolean isPropertyConsidered(PropertyDescriptor propertyDescriptor) {
+    def protected boolean isPropertyWriteable(Class<?> builderClass, String propertyName, Class<?> type) {
+        // do NOT use propertyDescriptor.writeMethod != null
+        // because java.beans.PropertyDescriptor ignores setters that don't return void, as typically found on Builder classes
+        try {
+            builderClass.getMethod("set" + propertyName.toFirstUpper, type)
+            true;
+        } catch (NoSuchMethodException e) {
+            false;
+        }
+    }
+
+    def protected boolean isPropertyConsidered(Class<?> builderClass, String propertyName, Class<?> type) {
         true
     }
 

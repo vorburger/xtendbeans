@@ -2,7 +2,13 @@ ch.vorburger.xtendbeans Release Notes
 =====================================
 
 
-v1.1.0 @ TBD
+v1.1.1 @ 2016-08-30
+---
+
+* Support for setters that don't return void, as typically found on Builder classes
+
+
+v1.1.0 @ 2016-08-29
 ---
 
 * AssertBeans without Object.equals()

@@ -10,7 +10,7 @@ package ch.vorburger.xtendbeans.tests
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
-@Accessors
+@Accessors(PUBLIC_GETTER) // NOT SETTER because that generates void setName(..) instead of BeanWithBuilderBuilder setName(..)
 class BeanWithBuilderBuilder implements Builder<BeanWithBuilder> {
 
     // This class is in a separate file instead of within XtendBeanGeneratorTest
@@ -19,6 +19,11 @@ class BeanWithBuilderBuilder implements Builder<BeanWithBuilder> {
     // classes "next" to them.
 
     String name
+
+    def BeanWithBuilderBuilder setName(String name) {
+        this.name = name
+        return this
+    }
 
     override BeanWithBuilder build() {
         new BeanWithBuilderImpl(name)
