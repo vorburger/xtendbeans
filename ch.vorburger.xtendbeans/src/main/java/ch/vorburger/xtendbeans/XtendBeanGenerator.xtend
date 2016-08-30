@@ -336,5 +336,8 @@ class XtendBeanGenerator {
             }
         }
 
+        override toString() {
+            '''Property{name: «name», isWriteable: «isWriteable», type: «type»}'''
+        }
     }
 }
