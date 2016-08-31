@@ -19,6 +19,8 @@ import ch.vorburger.xtendbeans.XtendBeanGenerator
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
+import java.util.HashMap
+import java.util.HashSet
 
 /**
  * Unit test for basic XtendBeanGenerator.
@@ -70,6 +72,32 @@ class XtendBeanGeneratorBaseTest {
 
     @Test def void list() {
         assertThatEndsWith(g.getExpression(#["hi", "ho"]), "#[\n    \"hi\",\n    \"ho\"\n]")
+    }
+
+    @Test def void map() {
+        assertEquals("#{\n    \"hi\" -> \"saluton\",\n    \"CU\" -> \"gis baldau\"\n}",
+            g.getExpression(#{"hi" -> "saluton", "CU" -> "gis baldau" })
+        )
+    }
+
+    @Test def void emptyXtendSetOrMap() {
+        assertEquals("#{\n}", g.getExpression(#{}))
+    }
+
+    @Test def void emptyMap() {
+        assertEquals("#{\n}", g.getExpression(new HashMap()))
+    }
+
+    @Test def void emptySet() {
+        assertEquals("#{\n}", g.getExpression(new HashSet()))
+    }
+
+    @Test def void set() {
+        assertEquals("#{\n    123\n}", g.getExpression(#{ 123 }))
+    }
+
+    @Test def void hashSet() {
+        assertEquals("#{\n    123\n}", g.getExpression(new HashSet(#{ 123 })))
     }
 
     @Test def void findEnclosingBuilderClass() {

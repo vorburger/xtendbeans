@@ -22,6 +22,8 @@ import org.objenesis.Objenesis
 import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 import java.util.Objects
+import java.util.Set
+import java.util.Map.Entry
 
 /**
  * Xtend new (Java Bean) object code generates.
@@ -179,10 +181,18 @@ class XtendBeanGenerator {
             case object.class.isArray : stringifyArray(object)
             List<?>   : '''
                         #[
-                            «FOR e : object SEPARATOR ','»
-                            «stringify(e)»
+                            «FOR element : object SEPARATOR ','»
+                            «stringify(element)»
                             «ENDFOR»
                         ]'''
+            Set<?>    : '''
+                        #{
+                            «FOR element : object SEPARATOR ','»
+                                «stringify(element)»
+                            «ENDFOR»
+                        }'''
+            Map       : stringify(object.entrySet)
+            Entry<?,?>: '''«stringify(object.key)» -> «stringify(object.value)»'''
             String    : '''"«object»"'''
             Integer   : '''«object»'''
             Long      : '''«object»L'''
