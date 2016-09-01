@@ -10,6 +10,7 @@ v1.1.1 @ 2016-08-30
 * Support properties of type Map (incl. via addXXX methods)
 * Support Class instances (customizable name/simpleName)
 * Customizable extra additional special properties
+* Customizable arbitrary extra initialization code
 * Fixed possible NullPointerException in assertEqualByText()
 
 

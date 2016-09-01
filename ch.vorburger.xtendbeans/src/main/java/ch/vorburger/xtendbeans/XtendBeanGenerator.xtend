@@ -82,10 +82,11 @@ class XtendBeanGenerator {
         «IF isUsingBuilder»(«ENDIF»new «builderClass.simpleName»«constructorArguments»«IF !filteredRemainingProperties.empty» «getOperator(bean, builderClass)» [«ENDIF»
             «getPropertiesListExpression(filteredRemainingProperties)»
             «getPropertiesListExpression(getAdditionalSpecialProperties(bean, builderClass))»
+            «getAdditionalInitializationExpression(bean, builderClass)»
         «IF !filteredRemainingProperties.empty»]«ENDIF»«IF isUsingBuilder»).build()«ENDIF»'''
     }
 
-    def Iterable<Property> getAdditionalSpecialProperties(Object bean, Class<?> builderClass) {
+    def protected Iterable<Property> getAdditionalSpecialProperties(Object bean, Class<?> builderClass) {
         Collections.emptyList
     }
 
@@ -94,6 +95,10 @@ class XtendBeanGenerator {
         «property.name» «IF property.isList && !property.isWriteable»+=«ELSE»=«ENDIF» «stringify(property.valueFunction.get)»
         «ENDFOR»
     '''
+
+    def protected CharSequence getAdditionalInitializationExpression(Object bean, Class<?> builderClass) {
+        ""
+    }
 
     def protected isUsingBuilder(Object bean, Class<?> builderClass) {
         !builderClass.equals(bean.class)
