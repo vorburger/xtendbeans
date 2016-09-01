@@ -2,7 +2,7 @@ ch.vorburger.xtendbeans Release Notes
 =====================================
 
 
-v1.1.1 @ 2016-08-30
+v1.2.0 @ 2016-09-01
 ---
 
 * Support setters that don't return void, as typically found on Builder classes
