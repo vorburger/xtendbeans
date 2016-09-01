@@ -76,14 +76,18 @@ class XtendBeanGenerator {
         val propertiesByName = getBeanProperties(bean, builderClass)
         val propertiesByType = Multimaps.index(propertiesByName.values, [ Property p | p.type ])
         val constructorArguments = constructorArguments(bean, builderClass, propertiesByName, propertiesByType) // This removes some properties
-        val filteredRemainingProperties = propertiesByName.filter[name, property |
-            ((property.isWriteable || property.isList) && !property.hasDefaultValue)].values
+        val filteredRemainingProperties = filter(propertiesByName.filter[name, property |
+            ((property.isWriteable || property.isList) && !property.hasDefaultValue)].values)
         '''
         «IF isUsingBuilder»(«ENDIF»new «builderClass.simpleName»«constructorArguments»«IF !filteredRemainingProperties.empty» «getOperator(bean, builderClass)» [«ENDIF»
             «getPropertiesListExpression(filteredRemainingProperties)»
             «getPropertiesListExpression(getAdditionalSpecialProperties(bean, builderClass))»
             «getAdditionalInitializationExpression(bean, builderClass)»
         «IF !filteredRemainingProperties.empty»]«ENDIF»«IF isUsingBuilder»).build()«ENDIF»'''
+    }
+
+    def protected Iterable<Property> filter(Iterable<Property> properties) {
+        properties
     }
 
     def protected Iterable<Property> getAdditionalSpecialProperties(Object bean, Class<?> builderClass) {

@@ -11,6 +11,7 @@ v1.1.1 @ 2016-08-30
 * Support Class instances (customizable name/simpleName)
 * Customizable extra additional special properties
 * Customizable arbitrary extra initialization code
+* Customizable Property filtering (e.g. exclusion)
 * Fixed possible NullPointerException in assertEqualByText()
 
 
