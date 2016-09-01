@@ -29,6 +29,8 @@ import com.google.common.collect.Multimap
 import com.google.common.collect.Multimaps
 import com.google.common.base.Function
 import ch.vorburger.xtendbeans.XtendBeanGenerator.Property
+import java.util.Collections
+import java.util.function.Supplier
 
 /**
  * Xtend new (Java Bean) object code generates.
@@ -78,11 +80,20 @@ class XtendBeanGenerator {
             ((property.isWriteable || property.isList) && !property.hasDefaultValue)].values
         '''
         «IF isUsingBuilder»(«ENDIF»new «builderClass.simpleName»«constructorArguments»«IF !filteredRemainingProperties.empty» «getOperator(bean, builderClass)» [«ENDIF»
-            «FOR property : filteredRemainingProperties»
-            «property.name» «IF property.isList && !property.isWriteable»+=«ELSE»=«ENDIF» «stringify(property.valueFunction.apply)»
-            «ENDFOR»
+            «getPropertiesListExpression(filteredRemainingProperties)»
+            «getPropertiesListExpression(getAdditionalSpecialProperties(bean, builderClass))»
         «IF !filteredRemainingProperties.empty»]«ENDIF»«IF isUsingBuilder»).build()«ENDIF»'''
     }
+
+    def Iterable<Property> getAdditionalSpecialProperties(Object bean, Class<?> builderClass) {
+        Collections.emptyList
+    }
+
+    def protected getPropertiesListExpression(Iterable<Property> properties) '''
+        «FOR property : properties»
+        «property.name» «IF property.isList && !property.isWriteable»+=«ELSE»=«ENDIF» «stringify(property.valueFunction.get)»
+        «ENDFOR»
+    '''
 
     def protected isUsingBuilder(Object bean, Class<?> builderClass) {
         !builderClass.equals(bean.class)
@@ -202,7 +213,7 @@ class XtendBeanGenerator {
         val propertyByName = propertiesByName.get(constructorParameterName)
         if (propertyByName != null) {
             propertiesByName.remove(propertyByName.name)
-            return stringify(propertyByName.valueFunction.apply)
+            return stringify(propertyByName.valueFunction.get)
         } else {
             // Fallback.. attempt to match just based on type, not name
             // NOTE In this case we already made sure earlier in isSuitableConstructorByType that there is exactly one matching by type
@@ -210,7 +221,7 @@ class XtendBeanGenerator {
             if (matchingProperties.size == 1) {
                 val propertyByType = matchingProperties.head
                 propertiesByName.remove(propertyByType.name)
-                return stringify(propertyByType.valueFunction.apply)
+                return stringify(propertyByType.valueFunction.get)
             } else if (matchingProperties.size > 1) {
                 throw new IllegalStateException(
                     "Constructor parameter '" + constructorParameterName + "' of "
@@ -394,7 +405,7 @@ class XtendBeanGenerator {
         final String name
         final boolean isWriteable
         final Class<?> type
-        final Function0<Object> valueFunction
+        final Supplier<Object> valueFunction
         final Object defaultValue
 
         // @Accessors and @FinalFieldsConstructor don't do null checks
@@ -408,7 +419,7 @@ class XtendBeanGenerator {
 
         def boolean hasDefaultValue() {
             val value = try {
-                valueFunction.apply
+                valueFunction.get
             } catch (Throwable t) {
                 null
             }
@@ -416,7 +427,7 @@ class XtendBeanGenerator {
                 true
             } else if (value != null && defaultValue != null) {
                 if (!type.isArray)
-                    valueFunction.apply == defaultValue
+                    valueFunction.get == defaultValue
                 else switch defaultValue {
                     byte[]    : Arrays.equals(value as byte[],    defaultValue as byte[])
                     boolean[] : Arrays.equals(value as boolean[], defaultValue as boolean[])

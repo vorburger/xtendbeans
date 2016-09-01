@@ -9,6 +9,7 @@ v1.1.1 @ 2016-08-30
 * Support matching constructor arguments by type instead name
 * Support properties of type Map (incl. via addXXX methods)
 * Support Class instances (customizable name/simpleName)
+* Customizable extra additional special properties
 * Fixed possible NullPointerException in assertEqualByText()
 
 
