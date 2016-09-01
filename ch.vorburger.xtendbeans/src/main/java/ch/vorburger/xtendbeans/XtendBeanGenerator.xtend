@@ -24,6 +24,11 @@ import org.objenesis.instantiator.ObjectInstantiator
 import java.util.Objects
 import java.util.Set
 import java.util.Map.Entry
+import com.google.common.base.Preconditions
+import com.google.common.collect.Multimap
+import com.google.common.collect.Multimaps
+import com.google.common.base.Function
+import ch.vorburger.xtendbeans.XtendBeanGenerator.Property
 
 /**
  * Xtend new (Java Bean) object code generates.
@@ -66,9 +71,10 @@ class XtendBeanGenerator {
 
     def protected CharSequence getNewBeanExpression(Object bean, Class<?> builderClass) {
         val isUsingBuilder = isUsingBuilder(bean, builderClass)
-        val properties = getBeanProperties(bean, builderClass)
-        val constructorArguments = constructorArguments(bean, builderClass, properties) // This removes some properties
-        val filteredRemainingProperties = properties.filter[name, property |
+        val propertiesByName = getBeanProperties(bean, builderClass)
+        val propertiesByType = Multimaps.index(propertiesByName.values, [ Property p | p.type ])
+        val constructorArguments = constructorArguments(bean, builderClass, propertiesByName, propertiesByType) // This removes some properties
+        val filteredRemainingProperties = propertiesByName.filter[name, property |
             ((property.isWriteable || property.isList) && !property.hasDefaultValue)].values
         '''
         «IF isUsingBuilder»(«ENDIF»new «builderClass.simpleName»«constructorArguments»«IF !filteredRemainingProperties.empty» «getOperator(bean, builderClass)» [«ENDIF»
@@ -107,37 +113,36 @@ class XtendBeanGenerator {
         }
     }
 
-    def protected constructorArguments(Object bean, Class<?> builderClass, Map<String, Property> properties) {
+    def protected constructorArguments(Object bean, Class<?> builderClass, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
         val constructors = builderClass.constructors
         if (constructors.isEmpty) ''''''
         else {
-            val constructor = findSuitableConstructor(constructors, properties)
+            val constructor = findSuitableConstructor(constructors, propertiesByName, propertiesByType)
             if (constructor == null) ''''''
             else {
                 val parameters = constructor.parameters
-                '''«FOR parameter : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«getConstructorParameterValue(parameter, properties)»«ENDFOR»'''
+                '''«FOR parameter : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«getConstructorParameterValue(parameter, propertiesByName, propertiesByType)»«ENDFOR»'''
             }
         }
     }
 
-    def protected Constructor<?> findSuitableConstructor(Constructor<?>[] constructors, Map<String, Property> properties) {
-        val propertyNames = properties.keySet
-        val possibleConstructors = newArrayList
+    def protected Constructor<?> findSuitableConstructor(Constructor<?>[] constructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
+        val possibleParameterByNameAndTypeMatchingConstructors = newArrayList
+        val possibleParameterOnlyByTypeMatchingConstructors = newArrayList
         for (Constructor<?> constructor : constructors) {
-            var suitableConstructor = true
-            for (parameter : constructor.parameters) {
-                if (!propertyNames.contains(getParameterName(parameter))) {
-                    suitableConstructor = false
-                } else if (!properties.get(getParameterName(parameter)).type.equals(parameter.type)) {
-                    suitableConstructor = false
-                } else if (properties.get(getParameterName(parameter)).hasDefaultValue) {
-                    suitableConstructor = false
-                }
-            }
-            if (suitableConstructor) {
-                possibleConstructors.add(constructor)
+            if (isSuitableConstructorByName(constructor, propertiesByName)) {
+                possibleParameterByNameAndTypeMatchingConstructors.add(constructor)
+            } else if (isSuitableConstructorByType(constructor, propertiesByType)) {
+                // Fallback.. attempt to match just based on type, not name
+                possibleParameterOnlyByTypeMatchingConstructors.add(constructor)
             }
         }
+        val possibleConstructors =
+            if (!possibleParameterByNameAndTypeMatchingConstructors.isEmpty)
+                possibleParameterByNameAndTypeMatchingConstructors
+            else
+                possibleParameterOnlyByTypeMatchingConstructors
+        val propertyNames = propertiesByName.keySet
         if (possibleConstructors.isEmpty)
             throw new IllegalStateException("No suitable constructor found, write a *Builder to help, as none of these match: "
                 + Arrays.toString(constructors) + "; for: " + propertyNames)
@@ -154,16 +159,73 @@ class XtendBeanGenerator {
                 + retainedConstructors + "; for: " + propertyNames)
     }
 
-    def protected getConstructorParameterValue(Parameter parameter, Map<String, Property> properties) {
+    def protected isSuitableConstructorByName(Constructor<?> constructor, Map<String, Property> propertiesByName) {
+        var suitableConstructor = true
+        for (parameter : constructor.parameters) {
+            val parameterName = getParameterName(parameter)
+            if (!propertiesByName.containsKey(parameterName)) {
+                suitableConstructor = false
+            } else {
+                val property = propertiesByName.get(parameterName)
+                suitableConstructor = isParameterSuitableForProperty(parameter, property)
+            }
+        }
+        suitableConstructor
+    }
+
+    def protected isSuitableConstructorByType(Constructor<?> constructor, Multimap<Class<?>, Property> propertiesByType) {
+        var suitableConstructor = true
+        for (parameter : constructor.parameters) {
+            val matchingProperties = propertiesByType.get(parameter.type)
+            if (matchingProperties.size != 1) {
+                suitableConstructor = false
+            } else {
+                val property = matchingProperties.head
+                suitableConstructor = isParameterSuitableForProperty(parameter, property)
+            }
+        }
+        suitableConstructor
+    }
+
+    def protected isParameterSuitableForProperty(Parameter parameter, Property property) {
+        if (!parameter.type.equals(property.type)) {
+            return false
+        } else if (property.hasDefaultValue) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    def protected getConstructorParameterValue(Parameter parameter, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
         val constructorParameterName = getParameterName(parameter)
-        val value = properties.get(constructorParameterName)
-        if (value == null)
-            throw new IllegalStateException(
-                "Constructor parameter '" + constructorParameterName + "' not found in "
-                + parameter.declaringExecutable + ", consider writing a *Builder; bean's properties: "
-                + properties.keySet)
-        properties.remove(constructorParameterName)
-        return stringify(value.valueFunction.apply)
+        val propertyByName = propertiesByName.get(constructorParameterName)
+        if (propertyByName != null) {
+            propertiesByName.remove(propertyByName.name)
+            return stringify(propertyByName.valueFunction.apply)
+        } else {
+            // Fallback.. attempt to match just based on type, not name
+            // NOTE In this case we already made sure earlier in isSuitableConstructorByType that there is exactly one matching by type
+            val matchingProperties = propertiesByType.get(parameter.type)
+            if (matchingProperties.size == 1) {
+                val propertyByType = matchingProperties.head
+                propertiesByName.remove(propertyByType.name)
+                return stringify(propertyByType.valueFunction.apply)
+            } else if (matchingProperties.size > 1) {
+                throw new IllegalStateException(
+                    "Constructor parameter '" + constructorParameterName + "' of "
+                    + parameter.declaringExecutable + " matches no property by name, "
+                    + "but more than 1 property by type: "  + matchingProperties
+                    + ", consider writing a *Builder; all bean's properties: "
+                    + propertiesByName.keySet)
+            } else { // matchingProperties.isEmpty
+                throw new IllegalStateException(
+                    "Constructor parameter '" + constructorParameterName + "' of "
+                    + parameter.declaringExecutable + " not matching by name or type, "
+                    + "consider writing a *Builder; bean's properties: "
+                    + propertiesByName.keySet)
+            }
+        }
     }
 
     def protected getParameterName(Parameter parameter) {
@@ -327,13 +389,22 @@ class XtendBeanGenerator {
         }
     }
 
-    @FinalFieldsConstructor @Accessors(PUBLIC_GETTER)
+    @Accessors(PUBLIC_GETTER)
     protected static class Property {
         final String name
         final boolean isWriteable
         final Class<?> type
         final Function0<Object> valueFunction
         final Object defaultValue
+
+        // @Accessors and @FinalFieldsConstructor don't do null checks
+        new(String name, boolean isWriteable, Class<?> type, Function0<Object> valueFunction, Object defaultValue) {
+            this.name = Preconditions.checkNotNull(name, "name")
+            this.isWriteable = isWriteable
+            this.type = Preconditions.checkNotNull(type, "type")
+            this.valueFunction = Preconditions.checkNotNull(valueFunction, "valueFunction")
+            this.defaultValue = defaultValue
+        }
 
         def boolean hasDefaultValue() {
             val value = try {

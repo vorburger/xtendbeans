@@ -192,6 +192,16 @@ class XtendBeanGeneratorTest {
             ]'''.toString, g.getExpression(bean))
     }
 
+    @Test def void beanWithOneConstructorDifferentName() {
+        val bean = new BeanWithOneConstructorDifferentName("hello, world")
+        assertEquals("new BeanWithOneConstructorDifferentName(\"hello, world\")\n".toString, g.getExpression(bean))
+    }
+
+    @Test def void beanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName() {
+        val bean = new BeanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName("hello, world")
+        assertEquals("new BeanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName(\"hello, world\")\n".toString, g.getExpression(bean))
+    }
+
     // This currently only works if there is a Builder for such classes
     // TODO retest in new @Test without a Builder as well; I think this may work, meanwhile?
     @Test def void beanWithMultiConstructor() {
@@ -261,6 +271,26 @@ class XtendBeanGeneratorTest {
 
         @FinalFieldsConstructor
         new() { }
+    }
+
+    public static class BeanWithOneConstructorDifferentName {
+        @Accessors(PUBLIC_GETTER) final String name
+
+        new(String value) { // parameter of type String but named value instead of name
+            name = value
+        }
+    }
+
+    public static class BeanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName {
+        @Accessors(PUBLIC_GETTER) final String name
+
+        new(String value) {
+            name = value
+        }
+
+        new(Integer age) {
+            name = "UNKNOWN"
+        }
     }
 
     @Accessors

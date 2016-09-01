@@ -6,6 +6,7 @@ v1.1.1 @ 2016-08-30
 ---
 
 * Support setters that don't return void, as typically found on Builder classes
+* Support matching constructor arguments by type instead name
 * Support properties of type Map (incl. via addXXX methods)
 * Support Class instances (customizable name/simpleName)
 * Fixed possible NullPointerException in assertEqualByText()
