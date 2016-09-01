@@ -66,6 +66,10 @@ class XtendBeanGeneratorBaseTest {
         assertThatEndsWith(g.getExpression(null), "null")
     }
 
+    @Test def void aClass() {
+        assertEquals("java.lang.String", g.getExpression(String))
+    }
+
     @Test def void emptyList() {
         assertThatEndsWith(g.getExpression(#[]), "#[\n]")
     }

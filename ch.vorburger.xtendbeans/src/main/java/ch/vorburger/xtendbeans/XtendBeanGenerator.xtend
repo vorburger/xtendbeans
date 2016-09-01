@@ -204,8 +204,14 @@ class XtendBeanGenerator {
             Short     : '''«object» as short'''
             BigInteger: '''«object»bi'''
             Enum<?>   : '''«object.declaringClass.simpleName».«object.name»'''
+            Class<?>  : stringify(object)
             default   : '''«getNewBeanExpression(object)»'''
         }
+    }
+
+    def protected stringify(Class<?> aClass) {
+        // override for aClass.simpleName
+        aClass.name
     }
 
     def protected CharSequence stringifyArray(Object array) {

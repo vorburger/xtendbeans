@@ -5,8 +5,9 @@ ch.vorburger.xtendbeans Release Notes
 v1.1.1 @ 2016-08-30
 ---
 
-* Support for setters that don't return void, as typically found on Builder classes
-* Support for properties of type Map (incl. via addXXX methods)
+* Support setters that don't return void, as typically found on Builder classes
+* Support properties of type Map (incl. via addXXX methods)
+* Support Class instances (customizable name/simpleName)
 * Fixed possible NullPointerException in assertEqualByText()
 
 
