@@ -47,6 +47,13 @@ The JUnit *Test class with your @Test methods does not have to written in Xtend 
 In a sense this library is a "serialization" helper not unlike frameworks like GSON, Jackson, JAXB & Co.  Instead of producing some sort of mark-up like XML, JSON (or [ESON](https://wiki.eclipse.org/ESON)!), it creates Xtend source code.  However, unlike those kind of frameworks, this library does not include any "de-serialization" (AKA unmarshalling) part to re-construct objects - because the Xtend source (transpiled into Java, compiled to standard JVM bytecode) will already create the original object - there is thus no need to dynamically at run-time "read" anything.
 
 
+_See also:_
+
+* http://javers.org
+* https://github.com/SQiShER/java-object-diff
+* http://java-object-diff.readthedocs.io/en/latest/
+* https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/builder/DiffBuilder.html
+
 _Reminder how to release new versions:_
 
     mvn release:prepare
