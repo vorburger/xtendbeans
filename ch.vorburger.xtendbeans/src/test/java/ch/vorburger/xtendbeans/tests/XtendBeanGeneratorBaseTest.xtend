@@ -292,7 +292,6 @@ class XtendBeanGeneratorBaseTest {
     }
 
     public static class ExplosiveBean {
-        String onlyGetter
         def String getOnlyGetter() {
             throw new IllegalStateException
         }

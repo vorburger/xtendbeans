@@ -14,7 +14,6 @@ import java.util.Arrays
 import java.util.List
 import java.util.Map
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.eclipse.xtext.xbase.lib.Functions.Function0
 import org.eclipse.xtext.xbase.lib.util.ReflectExtensions
 import org.mockito.cglib.core.ReflectUtils
@@ -27,7 +26,6 @@ import java.util.Map.Entry
 import com.google.common.base.Preconditions
 import com.google.common.collect.Multimap
 import com.google.common.collect.Multimaps
-import com.google.common.base.Function
 import ch.vorburger.xtendbeans.XtendBeanGenerator.Property
 import java.util.Collections
 import java.util.function.Supplier
