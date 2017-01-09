@@ -153,6 +153,7 @@ class XtendBeanGenerator {
         }
     }
 
+    // TODO remove this deprecated method after next version bump,  when https://git.opendaylight.org/gerrit/#/c/50137/ is merged
     @Deprecated // use getOptionalBuilderClassByAppendingBuilderToClassName() instead
     def protected Class<?> getBuilderClassByAppendingBuilderToClassName(Class<?> klass) {
         getOptionalBuilderClassByAppendingBuilderToClassName(klass).orElse(klass)
