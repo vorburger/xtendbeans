@@ -247,6 +247,11 @@ class XtendBeanGeneratorBaseTest {
         assertEquals("new ArrayBean\n", g.getExpression(b))
     }
 
+    @Test def void privateConstructorFieldBean() {
+        val b = new PrivateConstructorFieldBean
+        assertEquals("new PrivateConstructorFieldBean\n", g.getExpression(b))
+    }
+
     def private void assertThatEndsWith(String string, String endsWith) {
         assertTrue("'''" + string + "''' expected to endWith '''" + endsWith + "'''", string.endsWith(endsWith));
     }
@@ -305,4 +310,15 @@ class XtendBeanGeneratorBaseTest {
         }
     }
 
+    @Accessors
+    public static class PrivateConstructorFieldBean {
+        PrivateConstructorBean privateConstructorBean
+    }
+
+    public static class PrivateConstructorBean {
+        private new() { }
+        def static PrivateConstructorBean someFactory(String someValue) {
+            new PrivateConstructorBean
+        }
+    }
 }

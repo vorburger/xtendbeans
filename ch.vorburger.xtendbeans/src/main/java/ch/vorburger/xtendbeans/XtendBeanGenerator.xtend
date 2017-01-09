@@ -400,7 +400,7 @@ class XtendBeanGenerator {
     def protected newEmptyBeanForDefaultValues(Class<?> builderClass) {
         try {
             builderClass.newInstance
-        } catch (InstantiationException e) {
+        } catch (ReflectiveOperationException e) {
             // http://objenesis.org
             val ObjectInstantiator<?> builderClassInstantiator = objenesis.getInstantiatorOf(builderClass)
             builderClassInstantiator.newInstance
