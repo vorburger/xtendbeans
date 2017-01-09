@@ -29,9 +29,12 @@ package ch.vorburger.xtendbeans.tests
  */
 class BeanWithOneConstructorDifferentNameBuilder {
 
-    private new() { }
+    // This kind of class typically would have a private default constructor
+    // but things have to work even if it does not - we need to detect
+    // this kind of class through other checks as well, because of
+    // https://bugs.opendaylight.org/show_bug.cgi?id=7498
 
-    def BeanWithOneConstructorDifferentName newInstance(String name) {
+    static def BeanWithOneConstructorDifferentName newInstance(String name) {
         new BeanWithOneConstructorDifferentName(name)
     }
 

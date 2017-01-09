@@ -7,12 +7,23 @@
  */
 package ch.vorburger.xtendbeans
 
+import com.google.common.base.Preconditions
+import com.google.common.collect.Multimap
+import com.google.common.collect.Multimaps
 import java.lang.reflect.Constructor
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
 import java.math.BigInteger
 import java.util.Arrays
+import java.util.Collections
 import java.util.List
 import java.util.Map
+import java.util.Map.Entry
+import java.util.Objects
+import java.util.Optional
+import java.util.Set
+import java.util.function.Supplier
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.xbase.lib.Functions.Function0
 import org.eclipse.xtext.xbase.lib.util.ReflectExtensions
@@ -20,15 +31,6 @@ import org.mockito.cglib.core.ReflectUtils
 import org.objenesis.Objenesis
 import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
-import java.util.Objects
-import java.util.Set
-import java.util.Map.Entry
-import com.google.common.base.Preconditions
-import com.google.common.collect.Multimap
-import com.google.common.collect.Multimaps
-import ch.vorburger.xtendbeans.XtendBeanGenerator.Property
-import java.util.Collections
-import java.util.function.Supplier
 
 /**
  * Xtend new (Java Bean) object code generates.
@@ -116,25 +118,44 @@ class XtendBeanGenerator {
 
     def protected Class<?> getBuilderClass(Object bean) {
         val beanClass = bean.class
-        val builderClass = if (beanClass.enclosingClass?.simpleName?.endsWith("Builder"))
-            beanClass.enclosingClass
+        val Optional<Class<?>> optBuilderClass = if (beanClass.enclosingClass?.simpleName?.endsWith("Builder"))
+            Optional.of(beanClass.enclosingClass)
         else
-            getBuilderClassByAppendingBuilderToClassName(beanClass)
-        return if (builderClass.getConstructors().length == 0) {
-            beanClass
-        } else {
-            builderClass
-        }
+            getOptionalBuilderClassByAppendingBuilderToClassName(beanClass)
+        optBuilderClass.filter([builderClass | isBuilder(builderClass)]).orElse(beanClass)
     }
 
-    def protected Class<?> getBuilderClassByAppendingBuilderToClassName(Class<?> klass) {
+    def protected boolean isBuilder(Class<?> builderClass) {
+        // make sure that there are public constructors
+        builderClass.getConstructors().length > 0
+        // and even if there are, make sure that there are not only static methods
+            && atLeastOneNonStatic(builderClass.methods)
+    }
+
+    def private boolean atLeastOneNonStatic(Method[] methods) {
+        for (method : methods) {
+            if (!Modifier.isStatic(method.modifiers)
+                && !method.declaringClass.equals(Object)
+            ) {
+                return true
+            }
+        }
+        return false;
+    }
+
+    def protected Optional<Class<?>> getOptionalBuilderClassByAppendingBuilderToClassName(Class<?> klass) {
         val classLoader = klass.classLoader
         val buildClassName = klass.name + "Builder"
         try {
-            Class.forName(buildClassName, false, classLoader)
+            Optional.of(Class.forName(buildClassName, false, classLoader))
         } catch (ClassNotFoundException e) {
-            klass
+            Optional.empty
         }
+    }
+
+    @Deprecated // use getOptionalBuilderClassByAppendingBuilderToClassName() instead
+    def protected Class<?> getBuilderClassByAppendingBuilderToClassName(Class<?> klass) {
+        getOptionalBuilderClassByAppendingBuilderToClassName(klass).orElse(klass)
     }
 
     def protected constructorArguments(Object bean, Class<?> builderClass, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
