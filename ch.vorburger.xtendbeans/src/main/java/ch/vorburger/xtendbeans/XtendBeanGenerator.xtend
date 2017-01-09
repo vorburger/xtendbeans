@@ -115,10 +115,16 @@ class XtendBeanGenerator {
     }
 
     def protected Class<?> getBuilderClass(Object bean) {
-        if (bean.class.enclosingClass?.simpleName?.endsWith("Builder"))
-            bean.class.enclosingClass
+        val beanClass = bean.class
+        val builderClass = if (beanClass.enclosingClass?.simpleName?.endsWith("Builder"))
+            beanClass.enclosingClass
         else
-            getBuilderClassByAppendingBuilderToClassName(bean.class)
+            getBuilderClassByAppendingBuilderToClassName(beanClass)
+        return if (builderClass.getConstructors().length == 0) {
+            beanClass
+        } else {
+            builderClass
+        }
     }
 
     def protected Class<?> getBuilderClassByAppendingBuilderToClassName(Class<?> klass) {

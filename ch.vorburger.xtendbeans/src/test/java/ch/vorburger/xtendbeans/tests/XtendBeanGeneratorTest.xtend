@@ -273,14 +273,6 @@ class XtendBeanGeneratorTest {
         new() { }
     }
 
-    public static class BeanWithOneConstructorDifferentName {
-        @Accessors(PUBLIC_GETTER) final String name
-
-        new(String value) { // parameter of type String but named value instead of name
-            name = value
-        }
-    }
-
     public static class BeanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName {
         @Accessors(PUBLIC_GETTER) final String name
 
