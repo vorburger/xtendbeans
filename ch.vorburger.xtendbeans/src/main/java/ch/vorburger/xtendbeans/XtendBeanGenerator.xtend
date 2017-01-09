@@ -199,9 +199,41 @@ class XtendBeanGenerator {
         else if (retainedConstructors.empty)
             throw new IllegalStateException("No suitable constructor found, write a *Builder to help, as none of these match: "
                 + Arrays.toString(constructors) + "; for: " + propertyNames)
-        else
-            throw new IllegalStateException("More than 1 suitable constructor found; remove one or write a *Builder to help instead: "
-                + retainedConstructors + "; for: " + propertyNames)
+        else {
+            resolveAmbiguousConstructorChoice(retainedConstructors, propertiesByName, propertiesByType)
+                .orElseThrow([|
+                    new IllegalStateException("More than 1 suitable constructor found; remove one or write a *Builder to help instead: "
+                    + retainedConstructors + "; for: " + propertyNames)
+            ])
+        }
+    }
+
+    def protected Optional<Constructor<?>> resolveAmbiguousConstructorChoice(Constructor<?>[] constructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
+        chooseUnionConstructor(constructors, propertiesByName, propertiesByType)
+    }
+
+    /**
+     * If there are exactly 2 constructors with each 1 argument, and one of them takes a String and the other doesn't, then pick the other.
+     */
+    def protected Optional<Constructor<?>> chooseUnionConstructor(Constructor<?>[] constructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
+        if (constructors.length == 2) {
+            val constructor1Params = constructors.get(0).parameters
+            val constructor2Params = constructors.get(1).parameters
+            if (constructor1Params.length == 1 && constructor2Params.length == 1) {
+                if (!constructor1Params.get(0).type.isLikeString && constructor2Params.get(0).type.isLikeString) {
+                    return Optional.of(constructors.get(0))
+                }
+                if (constructor1Params.get(0).type.isLikeString && !constructor2Params.get(0).type.isLikeString) {
+                    return Optional.of(constructors.get(1))
+                }
+            }
+        }
+        Optional.empty
+    }
+
+    def protected boolean isLikeString(Class<?> type) {
+        val charArrayClass = Class.forName("[C") // Xtend does not allow char[].class
+        type.equals(String) || type.equals(charArrayClass)
     }
 
     def protected isSuitableConstructorByName(Constructor<?> constructor, Map<String, Property> propertiesByName) {
