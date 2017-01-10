@@ -211,7 +211,18 @@ class XtendBeanGenerator {
 
     def protected Optional<Constructor<?>> resolveAmbiguousConstructorChoice(Constructor<?>[] constructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
         chooseUnionConstructor(constructors, propertiesByName, propertiesByType)
+            // use or([| ..]) to add other ambiguous constructor choice resolution strategies:
+            // .or([| chooseUnionConstructor(constructors, propertiesByName, propertiesByType)])
     }
+/*
+    def private <T> Optional<T> or(Optional<T> optional, Supplier<Optional<T>> supplier) {
+        // this is a back-port of a new method of Optonal from JDK 9, slightly simplified (without <? extend T>
+        if (optional.isPresent) {
+            optional
+        } else {
+            supplier.get
+        }
+    }  */
 
     /**
      * If there are exactly 2 constructors with each 1 argument, and one of them takes a String and the other doesn't, then pick the other.
