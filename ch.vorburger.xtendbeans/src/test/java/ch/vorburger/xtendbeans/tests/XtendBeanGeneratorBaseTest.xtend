@@ -62,6 +62,15 @@ class XtendBeanGeneratorBaseTest {
         assertThatEndsWith(g.getExpression(""), "")
     }
 
+    @Test def void string() {
+        assertThatEndsWith(g.getExpression("hello, World"), "\"hello, World\"")
+    }
+
+    // This is a possible idea for future implementation; not currently required
+    @Ignore @Test def void charArray() {
+        assertThatEndsWith(g.getExpression("hello, World".toCharArray()), "\"hello, World\".toCharArray()")
+    }
+
     @Test def void aNull() {
         assertThatEndsWith(g.getExpression(null), "null")
     }
@@ -247,9 +256,19 @@ class XtendBeanGeneratorBaseTest {
         assertEquals("new ArrayBean\n", g.getExpression(b))
     }
 
-    @Test def void privateConstructorFieldBean() {
+    @Test def void privateConstructorFieldBeanWithNull() {
         val b = new PrivateConstructorFieldBean
         assertEquals("new PrivateConstructorFieldBean\n", g.getExpression(b))
+    }
+
+    @Ignore // This is a possible idea for future implementation; not currently required
+    @Test def void privateConstructorFieldBeanWithValue() {
+        val b = new PrivateConstructorFieldBean
+        b.privateConstructorBean = PrivateConstructorValueBeanWithFactoryMethod.someFactory("yolo")
+        assertEquals('''
+            new PrivateConstructorFieldBean => [
+                privateConstructorBean = PrivateConstructorBean.someFactory("yolo")
+            ]'''.toString, g.getExpression(b))
     }
 
     def private void assertThatEndsWith(String string, String endsWith) {
@@ -312,13 +331,19 @@ class XtendBeanGeneratorBaseTest {
 
     @Accessors
     public static class PrivateConstructorFieldBean {
-        PrivateConstructorBean privateConstructorBean
+        PrivateConstructorValueBeanWithFactoryMethod privateConstructorBean
     }
 
-    public static class PrivateConstructorBean {
+    public static class PrivateConstructorValueBeanWithFactoryMethod {
+        String value
         private new() { }
-        def static PrivateConstructorBean someFactory(String someValue) {
-            new PrivateConstructorBean
+        def static PrivateConstructorValueBeanWithFactoryMethod someFactory(String value) {
+            val valueBean = new PrivateConstructorValueBeanWithFactoryMethod
+            valueBean.value = value
+            valueBean
+        }
+        def String getValue() {
+            value
         }
     }
 }
