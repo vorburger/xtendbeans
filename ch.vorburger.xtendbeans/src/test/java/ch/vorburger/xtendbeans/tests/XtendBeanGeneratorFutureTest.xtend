@@ -29,6 +29,13 @@ class XtendBeanGeneratorFutureTest {
     }
 
     @Ignore // This is a possible idea for future implementation; not currently required
+    // NB, if ever implementing: The IllegalAccessException: Class .. can not access a member of .. with modifiers "private")
+    // which this currently causes is NOT the real issue! That could be fixed easy enough, e.g. by catch (InstantiationException | IllegalAccessException e)
+    // instead of just the current catch (InstantiationException e) in newEmptyBeanForDefaultValues().
+    // But the real problem is that of course that should never be called in the first place...
+    // more work would be required to support *Factory kind of pattern classes with static create method,
+    // instead of (in addition to, really; based on some TBD heuristics which to use) the current
+    // *Builder or constructor approach.
     @Test def void privateConstructorFieldBeanWithValue() {
         val b = new PrivateConstructorFieldBean
         b.privateConstructorBean = PrivateConstructorValueBeanWithFactoryMethod.someFactory("yolo")
