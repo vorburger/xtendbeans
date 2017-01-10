@@ -194,17 +194,17 @@ class XtendBeanGeneratorTest {
 
     @Test def void beanWithOnlyConstructorNoOtherValues() {
         val bean = new BeanWithOneConstructor("hello, world", 123)
-        assertEquals("new BeanWithOneConstructor(\"hello, world\", 123)\n", g.getExpression(bean))
+        assertEquals("new BeanWithOneConstructor(\"hello, world\", 123)", g.getExpression(bean))
     }
 
     @Test def void beanWithOneConstructorDifferentName() {
         val bean = new BeanWithOneConstructorDifferentName("hello, world")
-        assertEquals("new BeanWithOneConstructorDifferentName(\"hello, world\")\n".toString, g.getExpression(bean))
+        assertEquals("new BeanWithOneConstructorDifferentName(\"hello, world\")".toString, g.getExpression(bean))
     }
 
     @Test def void beanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName() {
         val bean = new BeanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName("hello, world")
-        assertEquals("new BeanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName(\"hello, world\")\n".toString, g.getExpression(bean))
+        assertEquals("new BeanWithTwoConstructorsAndTheOneWithMatchingTypeHasDifferentParameterName(\"hello, world\")".toString, g.getExpression(bean))
     }
 
     // This currently only works if there is a Builder for such classes
@@ -225,12 +225,12 @@ class XtendBeanGeneratorTest {
 
     @Test def void beanWithMultiMatchingConstructors() {
         val bean = new BeanWithMultiMatchingConstructors("foobar", 123)
-        assertEquals("new BeanWithMultiMatchingConstructors(\"foobar\", 123)\n", g.getExpression(bean))
+        assertEquals("new BeanWithMultiMatchingConstructors(\"foobar\", 123)", g.getExpression(bean))
     }
 
     @Test def void beanWithMultiConstructorArgsSameNameTypeDiff() {
         val bean = new BeanWithMultiConstructorArgsSameNameTypeDiff(1L)
-        assertEquals("new BeanWithMultiConstructorArgsSameNameTypeDiff(1bi)\n", g.getExpression(bean))
+        assertEquals("new BeanWithMultiConstructorArgsSameNameTypeDiff(1bi)", g.getExpression(bean))
     }
 
 

@@ -78,12 +78,12 @@ class XtendBeanGenerator {
         val constructorArguments = constructorArguments(bean, builderClass, propertiesByName, propertiesByType) // This removes some properties
         val filteredRemainingProperties = filter(propertiesByName.filter[name, property |
             ((property.isWriteable || property.isList) && !property.hasDefaultValue)].values)
-        '''
+        CharSequenceExtensions.chomp('''
         «IF isUsingBuilder»(«ENDIF»new «builderClass.simpleName»«constructorArguments»«IF !filteredRemainingProperties.empty» «getOperator(bean, builderClass)» [«ENDIF»
             «getPropertiesListExpression(filteredRemainingProperties)»
             «getPropertiesListExpression(getAdditionalSpecialProperties(bean, builderClass))»
             «getAdditionalInitializationExpression(bean, builderClass)»
-        «IF !filteredRemainingProperties.empty»]«ENDIF»«IF isUsingBuilder»).build()«ENDIF»'''
+        «IF !filteredRemainingProperties.empty»]«ENDIF»«IF isUsingBuilder»).build()«ENDIF»''')
     }
 
     def protected Iterable<Property> filter(Iterable<Property> properties) {

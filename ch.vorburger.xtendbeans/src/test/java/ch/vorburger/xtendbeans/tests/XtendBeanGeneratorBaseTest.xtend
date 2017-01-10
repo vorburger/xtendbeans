@@ -124,17 +124,16 @@ class XtendBeanGeneratorBaseTest {
     }
 
     @Test def void emptyComplexBean() {
-        assertEquals('''new Bean
-            '''.toString, g.getExpression(new Bean))
+        assertEquals("new Bean", g.getExpression(new Bean))
     }
 
     @Test def void neverCallOnlyGettersIfThereIsNoSetter() {
-        assertEquals("new ExplosiveBean\n", g.getExpression(new ExplosiveBean))
+        assertEquals("new ExplosiveBean", g.getExpression(new ExplosiveBean))
     }
 
     @Test def void neverCallOnlyGettersIfThereIsNoSetterEvenIfItDoesNotThrowAnException() {
         val bean = new WeirdBean
-        assertEquals("new WeirdBean\n", g.getExpression(bean))
+        assertEquals("new WeirdBean", g.getExpression(bean))
         assertFalse(bean.wasGetterCalled)
     }
 
@@ -187,7 +186,7 @@ class XtendBeanGeneratorBaseTest {
 
     @Test def void defaultArray() {
         val b = new ArrayBean
-        assertEquals("new ArrayBean\n", g.getExpression(b))
+        assertEquals("new ArrayBean", g.getExpression(b))
     }
 
     @Test def void nullArray() {
@@ -213,7 +212,7 @@ class XtendBeanGeneratorBaseTest {
 
     @Test def void defaultPrimitiveArrayBean() {
         val b = new PrimitiveArrayBean
-        assertEquals("new PrimitiveArrayBean\n", g.getExpression(b))
+        assertEquals("new PrimitiveArrayBean", g.getExpression(b))
     }
 
     @Test def void nullPrimitiveArrayBean() {
@@ -248,17 +247,17 @@ class XtendBeanGeneratorBaseTest {
             strings = null
             longs = null
         ]
-        assertEquals("new ArrayBeanBuilder\n", g.getExpression(b))
+        assertEquals("new ArrayBeanBuilder", g.getExpression(b))
     }
 
     @Test def void emptyArrayToCheckCorrectDefaulting() {
         val b = new ArrayBean
-        assertEquals("new ArrayBean\n", g.getExpression(b))
+        assertEquals("new ArrayBean", g.getExpression(b))
     }
 
     @Test def void privateConstructorFieldBeanWithNull() {
         val b = new PrivateConstructorFieldBean
-        assertEquals("new PrivateConstructorFieldBean\n", g.getExpression(b))
+        assertEquals("new PrivateConstructorFieldBean", g.getExpression(b))
     }
 
     @Ignore // This is a possible idea for future implementation; not currently required
