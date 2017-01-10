@@ -2,6 +2,14 @@ ch.vorburger.xtendbeans Release Notes
 =====================================
 
 
+v1.2.1 @ 2017-01-10
+---
+
+* Support "union" kind of pattern classes (see also https://bugs.opendaylight.org/show_bug.cgi?id=7498)
+* Fixed spurious end of line new line characters which should not be there if only invoking constructor
+* Test for possible future support of objects with factory methods and private constructor
+
+
 v1.2.0 @ 2016-09-01
 ---
 
