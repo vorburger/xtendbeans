@@ -192,6 +192,11 @@ class XtendBeanGeneratorTest {
             ]'''.toString, g.getExpression(bean))
     }
 
+    @Test def void beanWithOnlyConstructorNoOtherValues() {
+        val bean = new BeanWithOneConstructor("hello, world", 123)
+        assertEquals("new BeanWithOneConstructor(\"hello, world\", 123)\n", g.getExpression(bean))
+    }
+
     @Test def void beanWithOneConstructorDifferentName() {
         val bean = new BeanWithOneConstructorDifferentName("hello, world")
         assertEquals("new BeanWithOneConstructorDifferentName(\"hello, world\")\n".toString, g.getExpression(bean))
