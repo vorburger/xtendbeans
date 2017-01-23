@@ -3,7 +3,7 @@
 
   <groupId>ch.vorburger</groupId>
   <artifactId>xtendbeans</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3-SNAPSHOT</version>
 
   <properties>
     <xtend.version>2.10.0</xtend.version>
@@ -24,7 +24,7 @@
     <connection>https://github.com/vorburger/xtendbeans.git</connection>
     <developerConnection>scm:git:git@github.com:vorburger/xtendbeans.git</developerConnection>
     <url>https://github.com/vorburger/xtendbeans</url>
-    <tag>xtendbeans-1.2.2</tag>
+    <tag>HEAD</tag>
   </scm>
   <organization>
     <name>Michael Vorburger</name>
