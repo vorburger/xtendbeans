@@ -6,7 +6,7 @@
   <version>1.2.2-SNAPSHOT</version>
 
   <properties>
-    <xtend.version>2.9.2</xtend.version>
+    <xtend.version>2.10.0</xtend.version>
   </properties>
 
   <name>Xtend Bean Generator by vorburger.ch</name>

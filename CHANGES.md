@@ -7,6 +7,7 @@ v1.2.2 @ 2017-01-23
 
 * POM use mockito-core instead of mockito-all, which is bad dangerous substance abuse (because it included outdated hamcrest; non-shadowed)
 * POM now explicitly depends on objenesis, which used to be in mockito-all (non-shadowed), as scope compile instead of runtime (due to above)
+* Bumped xtend.version from 2.9.2 to 2.10.0
 
 
 v1.2.1 @ 2017-01-10
