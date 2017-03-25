@@ -295,13 +295,13 @@ class XtendBeanGeneratorTest {
         String name
         Integer id
         def build() {
-            if (name != null && id == null)
+            if (name !== null && id === null)
                 new BeanWithMultiConstructor(name)
-            else if (name == null && id != null)
+            else if (name === null && id !== null)
                 new BeanWithMultiConstructor(id)
-            else if (name != null && id != null)
+            else if (name !== null && id !== null)
                 throw new IllegalStateException("Cannot set both name and id")
-            else if (name == null && id == null)
+            else if (name === null && id === null)
                 throw new IllegalStateException("Must set either name or id")
             else
                 throw new IllegalStateException("WTF?!")

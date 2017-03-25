@@ -158,7 +158,7 @@ class XtendBeanGenerator {
         if (constructors.isEmpty) ''''''
         else {
             val constructor = findSuitableConstructor(constructors, propertiesByName, propertiesByType)
-            if (constructor == null) ''''''
+            if (constructor === null) ''''''
             else {
                 val parameters = constructor.parameters
                 '''«FOR parameter : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«getConstructorParameterValue(parameter, propertiesByName, propertiesByType)»«ENDFOR»'''
@@ -283,7 +283,7 @@ class XtendBeanGenerator {
     def protected getConstructorParameterValue(Parameter parameter, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
         val constructorParameterName = getParameterName(parameter)
         val propertyByName = propertiesByName.get(constructorParameterName)
-        if (propertyByName != null) {
+        if (propertyByName !== null) {
             propertiesByName.remove(propertyByName.name)
             return stringify(propertyByName.valueFunction.get)
         } else {
@@ -495,9 +495,9 @@ class XtendBeanGenerator {
             } catch (Throwable t) {
                 null
             }
-            return if (value == null && defaultValue == null) {
+            return if (value === null && defaultValue === null) {
                 true
-            } else if (value != null && defaultValue != null) {
+            } else if (value !== null && defaultValue !== null) {
                 if (!type.isArray)
                     valueFunction.get == defaultValue
                 else switch defaultValue {
@@ -512,7 +512,7 @@ class XtendBeanGenerator {
                     Object[]  : Arrays.deepEquals(value as Object[], defaultValue as Object[])
                     default   : value.equals(defaultValue)
                 }
-            } else if (value == null || defaultValue == null) {
+            } else if (value === null || defaultValue === null) {
                 false
             }
         }
