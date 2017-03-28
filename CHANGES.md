@@ -2,6 +2,12 @@ ch.vorburger.xtendbeans Release Notes
 =====================================
 
 
+v1.2.2 @ TBD
+---
+
+* Bumped xtend.version from 2.10.0 to 2.11.0
+
+
 v1.2.2 @ 2017-01-23
 ---
 
