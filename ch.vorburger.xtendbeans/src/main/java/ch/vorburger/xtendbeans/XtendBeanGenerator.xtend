@@ -79,11 +79,25 @@ class XtendBeanGenerator {
         val filteredRemainingProperties = filter(propertiesByName.filter[name, property |
             ((property.isWriteable || property.isList) && !property.hasDefaultValue)].values)
         CharSequenceExtensions.chomp('''
-        «IF isUsingBuilder»(«ENDIF»new «builderClass.simpleName»«constructorArguments»«IF !filteredRemainingProperties.empty» «getOperator(bean, builderClass)» [«ENDIF»
+        «IF isUsingBuilder»(«ENDIF»new «builderClass.shortClassName»«constructorArguments»«IF !filteredRemainingProperties.empty» «getOperator(bean, builderClass)» [«ENDIF»
             «getPropertiesListExpression(filteredRemainingProperties)»
             «getPropertiesListExpression(getAdditionalSpecialProperties(bean, builderClass))»
             «getAdditionalInitializationExpression(bean, builderClass)»
         «IF !filteredRemainingProperties.empty»]«ENDIF»«IF isUsingBuilder»).build()«ENDIF»''')
+    }
+
+    def protected String shortClassName(Class<?> clazz) {
+        var name = clazz.simpleName
+        if (name.isNullOrEmpty)
+            name = longClassName(clazz)
+        if (name.isNullOrEmpty)
+            // just in case subclass overrides longClassName
+            name = clazz.name
+        name
+    }
+
+    def protected String longClassName(Class<?> clazz) {
+        clazz.name
     }
 
     def protected Iterable<Property> filter(Iterable<Property> properties) {
@@ -118,7 +132,7 @@ class XtendBeanGenerator {
 
     def protected Class<?> getBuilderClass(Object bean) {
         val beanClass = bean.class
-        val Optional<Class<?>> optBuilderClass = if (beanClass.enclosingClass?.simpleName?.endsWith("Builder"))
+        val Optional<Class<?>> optBuilderClass = if (beanClass.enclosingClass?.shortClassName?.endsWith("Builder"))
             Optional.of(beanClass.enclosingClass)
         else
             getOptionalBuilderClassByAppendingBuilderToClassName(beanClass)
@@ -348,15 +362,15 @@ class XtendBeanGenerator {
             Float     : '''«object»f'''
             Short     : '''«object» as short'''
             BigInteger: '''«object»bi'''
-            Enum<?>   : '''«object.declaringClass.simpleName».«object.name»'''
+            Enum<?>   : '''«object.declaringClass.shortClassName».«object.name»'''
             Class<?>  : stringify(object)
             default   : '''«getNewBeanExpression(object)»'''
         }
     }
 
     def protected stringify(Class<?> aClass) {
-        // override for aClass.simpleName
-        aClass.name
+        // @Override this method if you prefer using aClass.shortClassName than longClassName
+        aClass.longClassName
     }
 
     def protected CharSequence stringifyArray(Object array) {

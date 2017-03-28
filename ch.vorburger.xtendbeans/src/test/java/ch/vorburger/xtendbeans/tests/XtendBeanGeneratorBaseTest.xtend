@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
 import java.util.HashMap
 import java.util.HashSet
+import java.io.File
 
 /**
  * Unit test for basic XtendBeanGenerator.
@@ -77,6 +78,12 @@ class XtendBeanGeneratorBaseTest {
 
     @Test def void aClass() {
         assertEquals("java.lang.String", g.getExpression(String))
+    }
+
+    @Test def void anonymous() {
+        assertEquals("new ch.vorburger.xtendbeans.tests.XtendBeanGeneratorBaseTest$1",
+            g.getExpression(new File(".") { /* anon inner class */ })
+        )
     }
 
     @Test def void emptyList() {
