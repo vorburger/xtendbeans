@@ -338,18 +338,18 @@ class XtendBeanGenerator {
         switch object {
             case null : "null"
             case object.class.isArray : stringifyArray(object)
-            List<?>   : '''
-                        #[
-                            «FOR element : object SEPARATOR ','»
-                            «stringify(element)»
-                            «ENDFOR»
-                        ]'''
             Set<?>    : '''
                         #{
                             «FOR element : object SEPARATOR ','»
                                 «stringify(element)»
                             «ENDFOR»
                         }'''
+            Iterable<?> : '''
+                        #[
+                            «FOR element : object SEPARATOR ','»
+                            «stringify(element)»
+                            «ENDFOR»
+                        ]'''
             Map       : stringify(object.entrySet)
             Entry<?,?>: '''«stringify(object.key)» -> «stringify(object.value)»'''
             String    : '''"«object»"'''

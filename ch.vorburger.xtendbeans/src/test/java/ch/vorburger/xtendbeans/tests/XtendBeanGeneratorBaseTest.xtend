@@ -90,8 +90,14 @@ class XtendBeanGeneratorBaseTest {
         assertThatEndsWith(g.getExpression(#[]), "#[\n]")
     }
 
+    def List<String> aList() { #["hi", "ho"] }
     @Test def void list() {
-        assertThatEndsWith(g.getExpression(#["hi", "ho"]), "#[\n    \"hi\",\n    \"ho\"\n]")
+        assertThatEndsWith(g.getExpression(aList()), "#[\n    \"hi\",\n    \"ho\"\n]")
+    }
+
+    def Iterable<String> anIterable() { #["hi"] + #["ho"] }
+    @Test def void iterable() {
+        assertThatEndsWith(g.getExpression(anIterable()), "#[\n    \"hi\",\n    \"ho\"\n]")
     }
 
     @Test def void map() {
