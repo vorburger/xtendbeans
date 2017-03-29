@@ -233,6 +233,57 @@ class XtendBeanGeneratorTest {
         assertEquals("new BeanWithMultiConstructorArgsSameNameTypeDiff(1bi)", g.getExpression(bean))
     }
 
+    @Test def void primitivesConstructorTwoNonDefaultValues() {
+        assertEquals("new BeanWithTwoPrimitivesConstructorArgs(1, 2)",
+                g.getExpression(new BeanWithTwoPrimitivesConstructorArgs(1, 2)));
+    }
+
+    @Test def void primitivesConstructorTwoDefaultValues() {
+        assertEquals("new BeanWithTwoPrimitivesConstructorArgs(0, 0)",
+                g.getExpression(new BeanWithTwoPrimitivesConstructorArgs(0, 0)));
+    }
+
+    @Test def void primitivesConstructorOneDefaultValue() {
+        assertEquals("new BeanWithTwoPrimitivesConstructorArgs(0, 3)",
+                g.getExpression(new BeanWithTwoPrimitivesConstructorArgs(0, 3)));
+    }
+
+    @Test def void primitivesConstructorOtherDefaultValue() {
+        assertEquals("new BeanWithTwoPrimitivesConstructorArgs(3, 0)",
+                g.getExpression(new BeanWithTwoPrimitivesConstructorArgs(3, 0)));
+    }
+
+    @Test def void primitivesConstructorBuilderTwoNonDefaultValues() {
+        assertEquals('''
+            (new BeanWithTwoPrimitivesConstructorArgsWithBuilderBuilder => [
+                i = 1
+                j = 2
+            ]).build()'''.toString,
+                g.getExpression(new BeanWithTwoPrimitivesConstructorArgsWithBuilder(1, 2)));
+    }
+
+    @Test def void primitivesConstructorBuilderTwoDefaultValues() {
+        assertEquals('''
+            (new BeanWithTwoPrimitivesConstructorArgsWithBuilderBuilder
+            ).build()'''.toString,
+                g.getExpression(new BeanWithTwoPrimitivesConstructorArgsWithBuilder(0, 0)));
+    }
+
+    @Test def void primitivesConstructorBuilderOneDefaultValue() {
+        assertEquals('''
+            (new BeanWithTwoPrimitivesConstructorArgsWithBuilderBuilder => [
+                j = 3
+            ]).build()'''.toString,
+                g.getExpression(new BeanWithTwoPrimitivesConstructorArgsWithBuilder(0, 3)));
+    }
+
+    @Test def void primitivesConstructorBuilderOtherDefaultValue() {
+        assertEquals('''
+            (new BeanWithTwoPrimitivesConstructorArgsWithBuilderBuilder => [
+                i = 3
+            ]).build()'''.toString,
+                g.getExpression(new BeanWithTwoPrimitivesConstructorArgsWithBuilder(3, 0)));
+    }
 
     @Accessors
     public static class Bean {
@@ -365,6 +416,32 @@ class XtendBeanGeneratorTest {
 
         new(BigInteger big) { this.big = big }
         new(long big) { this(BigInteger.valueOf(big)) }
+    }
+
+    // For the following beans, it's important that i & j are primitive int, so that they have 0 as default value
+
+    public static class BeanWithTwoPrimitivesConstructorArgs {
+        @Accessors(PUBLIC_GETTER) final int i
+        @Accessors(PUBLIC_GETTER) final int j
+
+        new(int i, int j) { this.i = i; this. j = j }
+    }
+
+    public static class BeanWithTwoPrimitivesConstructorArgsWithBuilder {
+        @Accessors(PUBLIC_GETTER) final int i
+        @Accessors(PUBLIC_GETTER) final int j
+
+        new(int i, int j) { this.i = i; this. j = j }
+    }
+
+    @Accessors
+    public static class BeanWithTwoPrimitivesConstructorArgsWithBuilderBuilder {
+        int i
+        int j
+
+        def build() {
+            new BeanWithTwoPrimitivesConstructorArgsWithBuilder(i, j)
+        }
     }
 
 }

@@ -181,25 +181,20 @@ class XtendBeanGenerator {
     }
 
     def protected Constructor<?> findSuitableConstructor(Constructor<?>[] constructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
-        val possibleParameterByNameAndTypeMatchingConstructors = newArrayList
-        val possibleParameterOnlyByTypeMatchingConstructors = newArrayList
-        for (Constructor<?> constructor : constructors) {
-            if (isSuitableConstructorByName(constructor, propertiesByName)) {
-                possibleParameterByNameAndTypeMatchingConstructors.add(constructor)
-            } else if (isSuitableConstructorByType(constructor, propertiesByType)) {
-                // Fallback.. attempt to match just based on type, not name
-                possibleParameterOnlyByTypeMatchingConstructors.add(constructor)
-            }
+        try {
+            val possibleConstructors = findAllPossibleConstructors(constructors, propertiesByName, propertiesByType, true)
+            return findSuitableConstructorINTERNAL(possibleConstructors, propertiesByName, propertiesByType)
+        } catch (IllegalStateException e) {
+            val possibleConstructorsWithDefaultValues = findAllPossibleConstructors(constructors, propertiesByName, propertiesByType, false)
+            return findSuitableConstructorINTERNAL(possibleConstructorsWithDefaultValues, propertiesByName, propertiesByType)
         }
-        val possibleConstructors =
-            if (!possibleParameterByNameAndTypeMatchingConstructors.isEmpty)
-                possibleParameterByNameAndTypeMatchingConstructors
-            else
-                possibleParameterOnlyByTypeMatchingConstructors
+    }
+
+    def private Constructor<?> findSuitableConstructorINTERNAL(List<Constructor<?>> possibleConstructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
         val propertyNames = propertiesByName.keySet
         if (possibleConstructors.isEmpty)
             throw new IllegalStateException("No suitable constructor found, write a *Builder to help, as none of these match: "
-                + Arrays.toString(constructors) + "; for: " + propertyNames)
+                + possibleConstructors + "; for: " + propertyNames)
         // Now filter it out to retain only those with the highest number of parameters
         val randomMaxParametersConstructor = possibleConstructors.maxBy[parameterCount]
         val retainedConstructors = possibleConstructors.filter[it.parameterCount == randomMaxParametersConstructor.parameterCount]
@@ -207,7 +202,7 @@ class XtendBeanGenerator {
             retainedConstructors.head
         else if (retainedConstructors.empty)
             throw new IllegalStateException("No suitable constructor found, write a *Builder to help, as none of these match: "
-                + Arrays.toString(constructors) + "; for: " + propertyNames)
+                + possibleConstructors + "; for: " + propertyNames)
         else {
             resolveAmbiguousConstructorChoice(retainedConstructors, propertiesByName, propertiesByType)
                 .orElseThrow([|
@@ -215,6 +210,27 @@ class XtendBeanGenerator {
                     + retainedConstructors + "; for: " + propertyNames)
             ])
         }
+    }
+
+    def protected List<Constructor<?>> findAllPossibleConstructors(Constructor<?>[] constructors,
+            Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType,
+            boolean considerDefault) {
+
+        val possibleParameterByNameAndTypeMatchingConstructors = newArrayList
+        val possibleParameterOnlyByTypeMatchingConstructors = newArrayList
+        for (Constructor<?> constructor : constructors) {
+            if (isSuitableConstructorByName(constructor, propertiesByName, considerDefault)) {
+                possibleParameterByNameAndTypeMatchingConstructors.add(constructor)
+            } else if (isSuitableConstructorByType(constructor, propertiesByType, considerDefault)) {
+                // Fallback.. attempt to match just based on type, not name
+                possibleParameterOnlyByTypeMatchingConstructors.add(constructor)
+            }
+        }
+        return
+            if (!possibleParameterByNameAndTypeMatchingConstructors.isEmpty)
+                possibleParameterByNameAndTypeMatchingConstructors
+            else
+                possibleParameterOnlyByTypeMatchingConstructors
     }
 
     def protected Optional<Constructor<?>> resolveAmbiguousConstructorChoice(Constructor<?>[] constructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
@@ -256,7 +272,7 @@ class XtendBeanGenerator {
         type.equals(String) || type.equals(charArrayClass)
     }
 
-    def protected isSuitableConstructorByName(Constructor<?> constructor, Map<String, Property> propertiesByName) {
+    def protected isSuitableConstructorByName(Constructor<?> constructor, Map<String, Property> propertiesByName, boolean considerDefault) {
         var suitableConstructor = true
         for (parameter : constructor.parameters) {
             val parameterName = getParameterName(parameter)
@@ -264,13 +280,13 @@ class XtendBeanGenerator {
                 suitableConstructor = false
             } else {
                 val property = propertiesByName.get(parameterName)
-                suitableConstructor = isParameterSuitableForProperty(parameter, property)
+                suitableConstructor = isParameterSuitableForProperty(parameter, property, considerDefault)
             }
         }
         suitableConstructor
     }
 
-    def protected isSuitableConstructorByType(Constructor<?> constructor, Multimap<Class<?>, Property> propertiesByType) {
+    def protected isSuitableConstructorByType(Constructor<?> constructor, Multimap<Class<?>, Property> propertiesByType, boolean considerDefault) {
         var suitableConstructor = true
         for (parameter : constructor.parameters) {
             val matchingProperties = propertiesByType.get(parameter.type)
@@ -278,16 +294,16 @@ class XtendBeanGenerator {
                 suitableConstructor = false
             } else {
                 val property = matchingProperties.head
-                suitableConstructor = isParameterSuitableForProperty(parameter, property)
+                suitableConstructor = isParameterSuitableForProperty(parameter, property, considerDefault)
             }
         }
         suitableConstructor
     }
 
-    def protected isParameterSuitableForProperty(Parameter parameter, Property property) {
+    def protected isParameterSuitableForProperty(Parameter parameter, Property property, boolean considerDefault) {
         if (!parameter.type.equals(property.type)) {
             return false
-        } else if (property.hasDefaultValue) {
+        } else if (considerDefault && property.hasDefaultValue) {
             return false
         } else {
             return true
@@ -513,7 +529,7 @@ class XtendBeanGenerator {
                 true
             } else if (value !== null && defaultValue !== null) {
                 if (!type.isArray)
-                    valueFunction.get == defaultValue
+                    value == defaultValue
                 else switch defaultValue {
                     byte[]    : Arrays.equals(value as byte[],    defaultValue as byte[])
                     boolean[] : Arrays.equals(value as boolean[], defaultValue as boolean[])

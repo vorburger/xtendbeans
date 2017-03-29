@@ -2,9 +2,10 @@ ch.vorburger.xtendbeans Release Notes
 =====================================
 
 
-v1.2.3 @ TBD
+v1.2.3 @ 2017-03-29
 ---
 
+* Fixed bug re. constructors with primitives type args (default value 0 related issue)
 * Support all Iterable, not just List
 * Fixed confusing "empty" new expression occuring e.g. for anonymous inner classes
 * Bumped xtend.version from 2.10.0 to 2.11.0
