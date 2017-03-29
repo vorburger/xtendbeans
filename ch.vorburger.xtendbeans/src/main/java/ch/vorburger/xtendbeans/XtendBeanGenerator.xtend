@@ -531,15 +531,15 @@ class XtendBeanGenerator {
                 if (!type.isArray)
                     value == defaultValue
                 else switch defaultValue {
-                    byte[]    : Arrays.equals(value as byte[],    defaultValue as byte[])
-                    boolean[] : Arrays.equals(value as boolean[], defaultValue as boolean[])
-                    char[]    : Arrays.equals(value as char[],    defaultValue as char[])
-                    double[]  : Arrays.equals(value as double[],  defaultValue as double[])
-                    float[]   : Arrays.equals(value as float[],   defaultValue as float[])
-                    int[]     : Arrays.equals(value as int[],     defaultValue as int[])
-                    long[]    : Arrays.equals(value as long[],    defaultValue as long[])
-                    short[]   : Arrays.equals(value as short[],   defaultValue as short[])
-                    Object[]  : Arrays.deepEquals(value as Object[], defaultValue as Object[])
+                    byte[]    : Arrays.equals(value as byte[],    defaultValue)
+                    boolean[] : Arrays.equals(value as boolean[], defaultValue)
+                    char[]    : Arrays.equals(value as char[],    defaultValue)
+                    double[]  : Arrays.equals(value as double[],  defaultValue)
+                    float[]   : Arrays.equals(value as float[],   defaultValue)
+                    int[]     : Arrays.equals(value as int[],     defaultValue)
+                    long[]    : Arrays.equals(value as long[],    defaultValue)
+                    short[]   : Arrays.equals(value as short[],   defaultValue)
+                    Object[]  : Arrays.deepEquals(value as Object[], defaultValue)
                     default   : value.equals(defaultValue)
                 }
             } else if (value === null || defaultValue === null) {
