@@ -82,7 +82,7 @@ class XtendBeanGeneratorBaseTest {
 
     @Test def void anonymous() {
         assertEquals("new ch.vorburger.xtendbeans.tests.XtendBeanGeneratorBaseTest$1",
-            g.getExpression(new File(".") { /* anon inner class */ })
+            g.getExpression(new Object() { /* anon inner class */ })
         )
     }
 
@@ -314,7 +314,7 @@ class XtendBeanGeneratorBaseTest {
 
     public static class ExplosiveBean {
         def String getOnlyGetter() {
-            throw new IllegalStateException
+            throw new IllegalStateException("Explosion, just for testing")
         }
     }
 

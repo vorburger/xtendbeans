@@ -61,8 +61,8 @@ class XtendBeanGeneratorTest {
 
         assertEquals('''
             new Bean => [
-                ALongObject = 123L
-                AShort = 123 as short
+                aLongObject = 123L
+                aShort = 123 as short
                 anInt = 123
                 anInteger = 123
                 beanz += #[
@@ -117,7 +117,7 @@ class XtendBeanGeneratorTest {
             AssertBeans.assertEqualBeans(bean, bean2);
         } catch (ComparisonFailure comparisonFailure) {
             Assert.assertTrue(comparisonFailure.actual,
-                comparisonFailure.actual.startsWith("new Bean => [\n    ALongObject = 456L")
+                comparisonFailure.actual.startsWith("new Bean => [\n    aLongObject = 456L")
             );
         }
     }
@@ -140,6 +140,16 @@ class XtendBeanGeneratorTest {
         ]).build
         assertEquals('''
             (new BeanWithBuilderBuilder => [
+                name = "hoho"
+            ]).build()'''.toString, g.getExpression(bean))
+    }
+
+    @Test def void beanWithNoGettersBuilder() {
+        val BeanWithBuilder bean = (new BeanWithNoGettersBuilderBuilder => [
+            name = "hoho"
+        ]).build
+        assertEquals('''
+            (new BeanWithNoGettersBuilderBuilder => [
                 name = "hoho"
             ]).build()'''.toString, g.getExpression(bean))
     }
