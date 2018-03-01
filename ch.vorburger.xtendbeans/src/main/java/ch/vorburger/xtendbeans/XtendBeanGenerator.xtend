@@ -170,7 +170,7 @@ class XtendBeanGenerator {
         val constructors = builderClass.constructors
         if (constructors.isEmpty) ''''''
         else {
-            val constructor = findSuitableConstructor(constructors, propertiesByName, propertiesByType)
+            val constructor = findSuitableConstructor(builderClass, constructors, propertiesByName, propertiesByType)
             if (constructor === null) ''''''
             else {
                 val parameters = constructor.parameters
@@ -179,21 +179,22 @@ class XtendBeanGenerator {
         }
     }
 
-    def protected Constructor<?> findSuitableConstructor(Constructor<?>[] constructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
+    def protected Constructor<?> findSuitableConstructor(Class<?> builderClass, Constructor<?>[] constructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
         try {
             val possibleConstructors = findAllPossibleConstructors(constructors, propertiesByName, propertiesByType, true)
-            return findSuitableConstructorINTERNAL(possibleConstructors, propertiesByName, propertiesByType)
+            return findSuitableConstructorINTERNAL(builderClass, possibleConstructors, propertiesByName, propertiesByType)
         } catch (IllegalStateException e) {
             // This can easily happen frequently, and is expected; so do not LOG
             val possibleConstructorsWithDefaultValues = findAllPossibleConstructors(constructors, propertiesByName, propertiesByType, false)
-            return findSuitableConstructorINTERNAL(possibleConstructorsWithDefaultValues, propertiesByName, propertiesByType)
+            return findSuitableConstructorINTERNAL(builderClass, possibleConstructorsWithDefaultValues, propertiesByName, propertiesByType)
         }
     }
 
-    def private Constructor<?> findSuitableConstructorINTERNAL(List<Constructor<?>> possibleConstructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
+    def private Constructor<?> findSuitableConstructorINTERNAL(Class<?> builderClass, List<Constructor<?>> possibleConstructors, Map<String, Property> propertiesByName, Multimap<Class<?>, Property> propertiesByType) {
         val propertyNames = propertiesByName.keySet
         if (possibleConstructors.isEmpty)
-            throw new IllegalStateException("No suitable constructor found, write a *Builder to help, as none of these match: "
+            throw new IllegalStateException("No suitable constructor found on " + builderClass.name
+                + ", write a *Builder to help, as none of these match: "
                 + possibleConstructors + "; for: " + propertyNames)
         // Now filter it out to retain only those with the highest number of parameters
         val randomMaxParametersConstructor = possibleConstructors.maxBy[parameterCount]
