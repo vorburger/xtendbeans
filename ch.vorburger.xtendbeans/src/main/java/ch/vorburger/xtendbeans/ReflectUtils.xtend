@@ -40,6 +40,7 @@ package class ReflectUtils {
                  && !Modifier.isStatic(method.getModifiers())
                  && !Modifier.isAbstract(method.getModifiers())
                  && !isObjectMethod(method)
+                 && !method.isBridge()
                 ) {
                     // Check if it looks like a setter of some sort
                     if (method.parameterTypes.length == 1) {
